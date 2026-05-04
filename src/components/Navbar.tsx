@@ -27,7 +27,7 @@ export default function Navbar() {
             <li><a href="/search-donors">Find Donors</a></li>
             <li><a href="/#features">Emergency Request</a></li>
             <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="/contact">Contact</a></li>
           </ul>
           <div className="nav-cta">
             <a href="#" className="btn btn-ghost"><span>Sign In</span></a>
@@ -55,7 +55,7 @@ export default function Navbar() {
             <li><a href="/search-donors">Find Donors</a></li>
             <li><a href="/#features">Emergency Request</a></li>
             <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="/contact">Contact</a></li>
         </ul>
         <div className="mobile-btns">
           <a href="#" className="btn btn-outline"><span>Sign In</span></a>
