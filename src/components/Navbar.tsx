@@ -24,10 +24,10 @@ export default function Navbar() {
           </a>
           <ul className="nav-links">
             <li><a href="/">Home</a></li>
-            <li><a href="/#how-it-works">How It Works</a></li>
-            <li><a href="/#features">Our Mission</a></li>
             <li><a href="/search-donors">Find Donors</a></li>
+            <li><a href="/#features">Emergency Request</a></li>
             <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
           </ul>
           <div className="nav-cta">
             <a href="#" className="btn btn-ghost"><span>Sign In</span></a>
@@ -52,10 +52,10 @@ export default function Navbar() {
       <div className="mobile-menu" ref={mobileMenuRef}>
         <ul>
           <li><a href="/">Home</a></li>
-          <li><a href="/#how-it-works">How It Works</a></li>
-          <li><a href="/#features">Our Mission</a></li>
-          <li><a href="/search-donors">Find Donors</a></li>
-          <li><a href="#">About</a></li>
+            <li><a href="/search-donors">Find Donors</a></li>
+            <li><a href="/#features">Emergency Request</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Contact</a></li>
         </ul>
         <div className="mobile-btns">
           <a href="#" className="btn btn-outline"><span>Sign In</span></a>
