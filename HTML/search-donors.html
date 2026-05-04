@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search Donors — Blood Circle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Root Variables ── */
+    :root {
+      --crimson:   #8C1F28;
+      --crimson-d: #6B1520;
+      --crimson-l: #A8323D;
+      --cream:     #F7F3EC;
+      --cream-d:   #EDE7DC;
+      --gold:      #B8922A;
+      --gold-l:    #D4AA4A;
+      --ink:       #1C1C1C;
+      --ink-mid:   #3A3A3A;
+      --ink-soft:  #6B6B6B;
+      --white:     #FFFFFF;
+      --border:    rgba(140, 31, 40, 0.15);
+      --shadow-sm: 0 2px 12px rgba(28, 28, 28, 0.08);
+      --shadow-md: 0 8px 32px rgba(28, 28, 28, 0.12);
+      --shadow-lg: 0 20px 60px rgba(28, 28, 28, 0.16);
+      --success:   #2D7A4A;
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* ── Custom Cursor ── */
+    #cursor-dot {
+      width: 8px; height: 8px;
+      background: var(--crimson);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, background 0.2s;
+    }
+    #cursor-ring {
+      width: 34px; height: 34px;
+      border: 1.5px solid var(--crimson);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.2s ease, height 0.2s ease, opacity 0.2s;
+      opacity: 0.6;
+    }
+    body.cursor-hover #cursor-ring { width: 50px; height: 50px; opacity: 0.3; }
+    body.cursor-hover #cursor-dot { transform: translate(-50%, -50%) scale(1.6); }
+    @media (hover: none) {
+      #cursor-dot, #cursor-ring { display: none; }
+      body { cursor: auto; }
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--cream-d); }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); border-radius: 4px; }
+
+    /* ── Utility ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 11px;
+      font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--crimson); padding: 6px 16px;
+      border: 1px solid var(--border); border-radius: 2px;
+      background: rgba(140, 31, 40, 0.04);
+    }
+    .tag::before { content: ''; width: 6px; height: 6px; background: var(--crimson); border-radius: 50%; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: 'DM Sans', sans-serif; font-weight: 500;
+      font-size: 14px; letter-spacing: 0.06em;
+      padding: 15px 32px; border-radius: 2px;
+      border: none; cursor: none; text-decoration: none;
+      position: relative; overflow: hidden;
+      transition: color 0.3s ease;
+    }
+    .btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--ink); transform: scaleX(0);
+      transform-origin: left; transition: transform 0.35s cubic-bezier(0.77,0,0.18,1);
+    }
+    .btn span { position: relative; z-index: 1; }
+    .btn svg { position: relative; z-index: 1; transition: transform 0.3s ease; }
+    .btn:hover::before { transform: scaleX(1); }
+    .btn:hover svg { transform: translateX(4px); }
+    .btn-primary { background: var(--crimson); color: var(--white); }
+    .btn-primary::before { background: var(--crimson-d); }
+    .btn-outline {
+      background: transparent; color: var(--ink);
+      border: 1.5px solid var(--ink);
+    }
+    .btn-outline::before { background: var(--ink); }
+    .btn-outline:hover { color: var(--white); }
+    .btn-ghost {
+      background: transparent; color: var(--crimson);
+      border: 1.5px solid var(--border); padding: 13px 28px;
+    }
+    .btn-ghost::before { background: var(--crimson); }
+    .btn-ghost:hover { color: var(--white); }
+
+    /* ── Page Loader ── */
+    #page-loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--ink); display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.6s ease;
+    }
+    #page-loader.hidden { opacity: 0; pointer-events: none; }
+    .loader-content { text-align: center; }
+    .loader-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 40px; font-weight: 600; color: var(--white);
+      letter-spacing: 0.04em; margin-bottom: 24px;
+    }
+    .loader-logo span { color: var(--crimson-l); }
+    .loader-bar-wrap {
+      width: 200px; height: 2px; background: rgba(255,255,255,0.1);
+      border-radius: 2px; overflow: hidden; margin: 0 auto;
+    }
+    .loader-bar {
+      height: 100%; background: var(--crimson); width: 0%;
+      animation: load-bar 1.4s cubic-bezier(0.77,0,0.18,1) forwards;
+    }
+    @keyframes load-bar { to { width: 100%; } }
+
+    /* ── Reveal ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+      background: rgba(247, 243, 236, 0.92);
+      backdrop-filter: blur(16px) saturate(1.4);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    nav.scrolled { border-color: var(--border); box-shadow: var(--shadow-sm); }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 32px; max-width: 1200px; margin: 0 auto;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; cursor: none;
+    }
+    .logo-mark {
+      width: 36px; height: 36px; background: var(--crimson);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      position: relative; flex-shrink: 0;
+    }
+    .logo-mark::after {
+      content: ''; width: 14px; height: 14px;
+      border: 2px solid var(--white); border-radius: 50%; position: absolute;
+    }
+    .logo-mark::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--white); border-radius: 50%; position: absolute; z-index: 1;
+    }
+    .logo-text { display: flex; flex-direction: column; }
+    .logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600; color: var(--ink); letter-spacing: 0.03em; line-height: 1;
+    }
+    .logo-name span { color: var(--crimson); }
+    .logo-tagline {
+      font-size: 9px; font-weight: 500; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ink-soft); margin-top: 2px;
+    }
+    .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-size: 13.5px; font-weight: 400; letter-spacing: 0.04em;
+      color: var(--ink-mid); text-decoration: none;
+      position: relative; cursor: none; transition: color 0.2s;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px; background: var(--crimson);
+      transition: width 0.3s cubic-bezier(0.77,0,0.18,1);
+    }
+    .nav-links a:hover { color: var(--crimson); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a.active { color: var(--crimson); }
+    .nav-links a.active::after { width: 100%; }
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+    .nav-cta .btn { padding: 11px 24px; font-size: 13px; }
+    .nav-toggle {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: none; padding: 4px;
+    }
+    .nav-toggle span {
+      display: block; width: 24px; height: 1.5px; background: var(--ink);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    .mobile-menu {
+      display: none; position: fixed; top: 76px; left: 0; right: 0;
+      background: var(--cream); border-bottom: 1px solid var(--border);
+      padding: 24px 32px 32px; z-index: 899;
+      transform: translateY(-10px); opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease; pointer-events: none;
+    }
+    .mobile-menu.open { transform: translateY(0); opacity: 1; pointer-events: all; }
+    .mobile-menu ul { list-style: none; display: flex; flex-direction: column; gap: 20px; }
+    .mobile-menu ul li a {
+      font-size: 18px; font-family: 'Cormorant Garamond', serif;
+      font-weight: 500; color: var(--ink); text-decoration: none;
+      letter-spacing: 0.02em; cursor: none;
+    }
+    .mobile-menu .mobile-btns { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; }
+    .mobile-menu .btn { justify-content: center; }
+
+    /* ── Page Hero ── */
+    .search-hero {
+      padding-top: 90px;
+      background:
+        radial-gradient(ellipse 70% 60% at 80% 40%, rgba(140,31,40,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 50% at 5% 70%, rgba(184,146,42,0.05) 0%, transparent 60%),
+        var(--cream);
+      position: relative; overflow: hidden;
+    }
+    .search-hero-pattern {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 45%; z-index: 0; opacity: 0.04; pointer-events: none;
+    }
+    .search-hero-pattern svg { width: 100%; height: 100%; }
+    .search-hero-inner {
+      position: relative; z-index: 1;
+      max-width: 1200px; margin: 0 auto;
+      padding: 72px 32px 64px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 40px; flex-wrap: wrap;
+    }
+    .search-hero-left { max-width: 600px; }
+    .search-hero-badge { margin-bottom: 24px; }
+    .search-hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 4.5vw, 60px);
+      font-weight: 600; line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--ink); margin-bottom: 20px;
+    }
+    .search-hero-title em { font-style: italic; color: var(--crimson); }
+    .search-hero-desc {
+      font-size: 15.5px; line-height: 1.8; color: var(--ink-soft);
+      font-weight: 300; max-width: 460px; margin-bottom: 32px;
+    }
+    .search-hero-pills { display: flex; flex-wrap: wrap; gap: 10px; }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 12px; font-weight: 500; letter-spacing: 0.04em;
+      color: var(--ink-mid); padding: 7px 14px;
+      border: 1px solid var(--border); border-radius: 2px;
+      background: rgba(255,255,255,0.6);
+    }
+    .hero-pill svg { width: 13px; height: 13px; color: var(--crimson); flex-shrink: 0; }
+    .search-hero-stats {
+      display: flex; gap: 0; flex-shrink: 0;
+      border: 1px solid var(--border); background: var(--white);
+      box-shadow: var(--shadow-md); border-radius: 2px;
+      overflow: hidden; align-self: flex-end;
+    }
+    .sh-stat {
+      padding: 24px 32px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .sh-stat:last-child { border-right: none; }
+    .sh-stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 34px; font-weight: 700; color: var(--ink); line-height: 1;
+    }
+    .sh-stat-num span { color: var(--crimson); }
+    .sh-stat-label {
+      font-size: 11px; color: var(--ink-soft);
+      letter-spacing: 0.1em; text-transform: uppercase; margin-top: 5px;
+    }
+
+    /* ── Quick Search Bar ── */
+    .quick-search-wrap {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      position: sticky; top: 76px; z-index: 100;
+    }
+    .quick-search-inner {
+      max-width: 1200px; margin: 0 auto; padding: 20px 32px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .qs-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-soft);
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .qs-divider { width: 1px; height: 32px; background: var(--border); flex-shrink: 0; }
+    .qs-field {
+      display: flex; align-items: center; gap: 8px;
+      flex: 1; min-width: 140px;
+    }
+    .qs-field svg { color: var(--crimson); flex-shrink: 0; opacity: 0.7; }
+    .qs-input, .qs-select {
+      font-family: 'DM Sans', sans-serif; font-size: 13.5px;
+      color: var(--ink); background: transparent;
+      border: none; outline: none; width: 100%;
+      cursor: none; appearance: none;
+    }
+    .qs-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B6B6B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0 center;
+      padding-right: 16px;
+    }
+    .qs-btn {
+      background: var(--crimson); color: var(--white);
+      border: none; border-radius: 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      letter-spacing: 0.06em; padding: 12px 28px;
+      cursor: none; display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0; position: relative; overflow: hidden;
+      transition: background 0.25s;
+    }
+    .qs-btn:hover { background: var(--crimson-d); }
+    .qs-results-count {
+      font-size: 12px; color: var(--ink-soft); white-space: nowrap; flex-shrink: 0;
+      margin-left: auto;
+    }
+    .qs-results-count strong { color: var(--crimson); font-weight: 600; }
+
+    /* ── Main Layout ── */
+    .search-main {
+      max-width: 1200px; margin: 0 auto;
+      padding: 48px 32px 100px;
+      display: grid; grid-template-columns: 280px 1fr;
+      gap: 40px; align-items: start;
+    }
+
+    /* ── Filter Sidebar ── */
+    .filter-sidebar { position: sticky; top: 148px; }
+    .filter-panel {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 2px; overflow: hidden;
+    }
+    .filter-head {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--cream-d);
+      background: linear-gradient(to right, rgba(140,31,40,0.04) 0%, transparent 70%);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .filter-head-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600; color: var(--ink);
+    }
+    .filter-clear {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--crimson);
+      background: none; border: none; cursor: none;
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+    .filter-clear:hover { opacity: 0.7; }
+    .filter-section { border-bottom: 1px solid var(--cream-d); padding: 20px 24px; }
+    .filter-section:last-child { border-bottom: none; }
+    .filter-section-title {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-mid);
+      margin-bottom: 14px;
+    }
+
+    /* Blood Type Filter */
+    .bt-filter-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    }
+    .bt-f-opt { display: none; }
+    .bt-f-label {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 10px 4px; border: 1.5px solid var(--cream-d);
+      border-radius: 2px; cursor: none; transition: all 0.2s;
+      background: var(--cream);
+    }
+    .bt-f-label:hover { border-color: rgba(140,31,40,0.4); background: rgba(140,31,40,0.04); }
+    .bt-f-opt:checked + .bt-f-label {
+      border-color: var(--crimson); background: var(--crimson); color: var(--white);
+    }
+    .bt-f-type {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-weight: 700; color: var(--ink); transition: color 0.2s;
+    }
+    .bt-f-opt:checked + .bt-f-label .bt-f-type { color: var(--white); }
+
+    /* Checkbox filters */
+    .filter-check-list { display: flex; flex-direction: column; gap: 10px; }
+    .filter-check-item { display: flex; align-items: center; gap: 10px; cursor: none; }
+    .filter-check-item input[type="checkbox"] { display: none; }
+    .fc-box {
+      width: 18px; height: 18px; border: 1.5px solid var(--cream-d);
+      border-radius: 2px; background: var(--cream); flex-shrink: 0;
+      position: relative; transition: all 0.2s;
+    }
+    .filter-check-item input:checked + .fc-box {
+      background: var(--crimson); border-color: var(--crimson);
+    }
+    .filter-check-item input:checked + .fc-box::after {
+      content: '';
+      position: absolute; left: 4px; top: 1px;
+      width: 6px; height: 10px;
+      border: 2px solid var(--white);
+      border-left: none; border-top: none;
+      transform: rotate(45deg);
+    }
+    .fc-label { font-size: 13px; color: var(--ink-mid); line-height: 1.4; }
+    .fc-count {
+      margin-left: auto; font-size: 11px; color: var(--ink-soft);
+      background: var(--cream-d); padding: 2px 7px; border-radius: 10px;
+    }
+
+    /* Range / Select filter */
+    .filter-select {
+      width: 100%; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: var(--ink);
+      background: var(--cream); border: 1.5px solid var(--cream-d);
+      border-radius: 2px; padding: 10px 14px;
+      outline: none; cursor: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B6B6B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      padding-right: 32px;
+      transition: border-color 0.2s;
+    }
+    .filter-select:focus { border-color: var(--crimson); background-color: var(--white); }
+
+    .filter-apply-btn {
+      width: 100%; padding: 13px;
+      background: var(--crimson); color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      letter-spacing: 0.06em; border: none; border-radius: 2px;
+      cursor: none; margin-top: 4px;
+      position: relative; overflow: hidden; transition: background 0.25s;
+    }
+    .filter-apply-btn:hover { background: var(--crimson-d); }
+
+    /* ── Results Area ── */
+    .results-area {}
+    .results-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    }
+    .results-header-left {}
+    .results-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 600; color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .results-subtitle {
+      font-size: 13px; color: var(--ink-soft); margin-top: 4px;
+    }
+    .results-subtitle strong { color: var(--crimson); }
+    .results-sort {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sort-label {
+      font-size: 12px; color: var(--ink-soft); letter-spacing: 0.06em;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .sort-select {
+      font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink);
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 2px; padding: 9px 32px 9px 14px; outline: none;
+      cursor: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B6B6B' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      transition: border-color 0.2s;
+    }
+    .sort-select:focus { border-color: var(--crimson); outline: none; }
+
+    /* Active filters */
+    .active-filters {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+    }
+    .af-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500; color: var(--crimson);
+      background: rgba(140,31,40,0.07); border: 1px solid rgba(140,31,40,0.2);
+      border-radius: 2px; padding: 5px 10px; letter-spacing: 0.03em;
+    }
+    .af-chip-remove {
+      background: none; border: none; cursor: none; color: var(--crimson);
+      font-size: 14px; line-height: 1; padding: 0; opacity: 0.7;
+    }
+    .af-chip-remove:hover { opacity: 1; }
+
+    /* ── Donor Cards Grid ── */
+    .donors-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;
+    }
+
+    /* ── Donor Card ── */
+    .donor-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      position: relative;
+    }
+    .donor-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .donor-card-head {
+      padding: 24px 24px 0;
+      display: flex; align-items: flex-start; gap: 18px;
+    }
+    .donor-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 700; color: var(--white);
+      flex-shrink: 0; position: relative;
+    }
+    .donor-avatar.av-crimson { background: var(--crimson); }
+    .donor-avatar.av-ink { background: var(--ink); }
+    .donor-avatar.av-gold { background: var(--gold); }
+    .donor-avatar.av-teal { background: #2A7A6B; }
+    .donor-avatar.av-navy { background: #1E3A5F; }
+    .donor-blood {
+      position: absolute; bottom: -4px; right: -4px;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--crimson); border: 2px solid var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; font-weight: 700; color: var(--white);
+      font-family: 'DM Sans', sans-serif; letter-spacing: 0;
+    }
+    .donor-info { flex: 1; min-width: 0; }
+    .donor-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600; color: var(--ink);
+      line-height: 1.2; letter-spacing: -0.01em;
+    }
+    .donor-location {
+      font-size: 12px; color: var(--ink-soft); margin-top: 3px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .donor-location svg { color: var(--crimson); flex-shrink: 0; }
+    .donor-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .d-badge {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 3px 8px;
+      border-radius: 2px;
+    }
+    .d-badge-avail {
+      background: rgba(45,122,74,0.1); color: var(--success);
+    }
+    .d-badge-verify {
+      background: rgba(140,31,40,0.08); color: var(--crimson);
+    }
+    .d-badge-soon {
+      background: rgba(184,146,42,0.12); color: var(--gold);
+    }
+    .donor-card-body {
+      padding: 18px 24px;
+    }
+    .donor-divider {
+      height: 1px; background: var(--cream-d); margin-bottom: 16px;
+    }
+    .donor-meta-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px;
+      margin-bottom: 16px;
+    }
+    .donor-meta-item {}
+    .dmi-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--ink-soft);
+    }
+    .dmi-val {
+      font-size: 13px; font-weight: 500; color: var(--ink);
+      margin-top: 2px;
+    }
+
+    /* Blood type badge big */
+    .donor-blood-badge {
+      position: absolute; top: 20px; right: 20px;
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(140,31,40,0.07); border: 1.5px solid rgba(140,31,40,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px; font-weight: 700; color: var(--crimson);
+    }
+
+    .donor-card-footer {
+      padding: 0 24px 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .dc-btn-contact {
+      flex: 1; padding: 11px 16px;
+      background: var(--crimson); color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 500;
+      letter-spacing: 0.05em; border: none; border-radius: 2px;
+      cursor: none; display: flex; align-items: center; justify-content: center; gap: 6px;
+      position: relative; overflow: hidden; transition: background 0.25s;
+    }
+    .dc-btn-contact:hover { background: var(--crimson-d); }
+    .dc-btn-save {
+      width: 40px; height: 40px; border-radius: 2px;
+      background: transparent; border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: none; transition: all 0.2s; flex-shrink: 0;
+    }
+    .dc-btn-save:hover { border-color: var(--crimson); background: rgba(140,31,40,0.05); }
+    .dc-btn-save svg { color: var(--ink-soft); transition: color 0.2s; }
+    .dc-btn-save:hover svg { color: var(--crimson); }
+    .dc-btn-save.saved { background: rgba(140,31,40,0.08); border-color: var(--crimson); }
+    .dc-btn-save.saved svg { color: var(--crimson); fill: var(--crimson); }
+
+    /* Urgent badge */
+    .urgent-tag {
+      position: absolute; top: 0; left: 0;
+      background: var(--crimson); color: var(--white);
+      font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; padding: 5px 12px;
+      border-radius: 0 0 4px 0;
+    }
+
+    /* ── No Results ── */
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center; padding: 80px 40px;
+      display: none;
+    }
+    .no-results.show { display: block; }
+    .no-results-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(140,31,40,0.08); border: 1.5px solid rgba(140,31,40,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .no-results-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px; font-weight: 600; color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .no-results-desc {
+      font-size: 14px; color: var(--ink-soft); font-weight: 300;
+      line-height: 1.7; max-width: 360px; margin: 0 auto 24px;
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex; align-items: center; justify-content: center;
+      gap: 4px; margin-top: 48px;
+    }
+    .page-btn {
+      width: 40px; height: 40px; border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 500; cursor: none;
+      border: 1.5px solid var(--border);
+      background: var(--white); color: var(--ink-mid);
+      transition: all 0.2s;
+    }
+    .page-btn:hover { border-color: var(--crimson); color: var(--crimson); }
+    .page-btn.active {
+      background: var(--crimson); border-color: var(--crimson);
+      color: var(--white);
+    }
+    .page-btn.arrow { width: 40px; }
+    .page-btn.arrow:hover svg { transform: none; }
+    .page-dots {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-soft); font-size: 16px;
+    }
+
+    /* ── Emergency CTA ── */
+    .emergency-strip {
+      background: var(--ink);
+      padding: 20px 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .emergency-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px; flex-wrap: wrap;
+    }
+    .emerg-left { display: flex; align-items: center; gap: 16px; }
+    .emerg-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--crimson); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .emerg-text-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600; color: var(--white);
+    }
+    .emerg-text-sub {
+      font-size: 12.5px; color: rgba(255,255,255,0.5); margin-top: 2px;
+    }
+    .emerg-btn {
+      background: var(--crimson); color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      letter-spacing: 0.06em; padding: 13px 28px; border: none; border-radius: 2px;
+      cursor: none; display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0; transition: background 0.25s;
+    }
+    .emerg-btn:hover { background: var(--crimson-l); }
+
+    /* ── CTA Banner ── */
+    .cta-banner {
+      background: var(--crimson);
+      padding: 100px 0;
+      position: relative; overflow: hidden;
+    }
+    .cta-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 70% at 80% 50%, rgba(255,255,255,0.06) 0%, transparent 60%);
+    }
+    .cta-inner {
+      max-width: 900px; margin: 0 auto; padding: 0 32px;
+      text-align: center; position: relative; z-index: 1;
+    }
+    .cta-inner .tag {
+      background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.85);
+    }
+    .cta-inner .tag::before { background: rgba(255,255,255,0.85); }
+    .cta-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 60px); font-weight: 600;
+      color: var(--white); line-height: 1.1;
+      letter-spacing: -0.02em; margin: 20px 0 18px;
+    }
+    .cta-title em { font-style: italic; opacity: 0.75; }
+    .cta-desc {
+      font-size: 15.5px; color: rgba(255,255,255,0.7); font-weight: 300;
+      line-height: 1.8; max-width: 520px; margin: 0 auto 36px;
+    }
+    .cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-white {
+      background: var(--white); color: var(--crimson);
+      font-family: 'DM Sans', sans-serif; font-weight: 500;
+      font-size: 14px; letter-spacing: 0.06em;
+      padding: 15px 32px; border-radius: 2px; border: none;
+      cursor: none; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
+      position: relative; overflow: hidden; transition: color 0.3s;
+    }
+    .btn-white::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--ink); transform: scaleX(0);
+      transform-origin: left; transition: transform 0.35s cubic-bezier(0.77,0,0.18,1);
+    }
+    .btn-white span { position: relative; z-index: 1; }
+    .btn-white svg { position: relative; z-index: 1; transition: transform 0.3s; }
+    .btn-white:hover::before { transform: scaleX(1); }
+    .btn-white:hover { color: var(--white); }
+    .btn-white:hover svg { transform: translateX(4px); }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--ink); padding: 72px 0 0;
+      color: rgba(255,255,255,0.6);
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px; padding-bottom: 60px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer-logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 600; color: var(--white);
+      letter-spacing: 0.03em; margin-bottom: 6px;
+    }
+    .footer-logo-name span { color: var(--crimson-l); }
+    .footer-logo-tagline {
+      font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); margin-bottom: 20px;
+    }
+    .footer-brand-desc {
+      font-size: 13.5px; line-height: 1.8; color: rgba(255,255,255,0.45);
+      font-weight: 300; max-width: 280px;
+    }
+    .footer-col-title {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: rgba(255,255,255,0.35);
+      margin-bottom: 20px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a {
+      font-size: 13.5px; color: rgba(255,255,255,0.55);
+      text-decoration: none; cursor: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--white); }
+    .footer-bottom {
+      padding: 28px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-copy { font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 0.04em; }
+    .footer-socials { display: flex; gap: 12px; }
+    .social-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      cursor: none; transition: all 0.2s;
+    }
+    .social-btn svg { width: 14px; height: 14px; fill: rgba(255,255,255,0.4); transition: fill 0.2s; }
+    .social-btn:hover { border-color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.05); }
+    .social-btn:hover svg { fill: var(--white); }
+
+    /* ── Contact Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(28,28,28,0.65);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+      padding: 32px;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--white); border-radius: 2px;
+      width: 100%; max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(20px); opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      overflow: hidden;
+    }
+    .modal-overlay.open .modal {
+      transform: translateY(0); opacity: 1;
+    }
+    .modal-head {
+      padding: 28px 32px 24px;
+      border-bottom: 1px solid var(--cream-d);
+      background: linear-gradient(to right, rgba(140,31,40,0.04) 0%, transparent 60%);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+    }
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 600; color: var(--ink);
+    }
+    .modal-subtitle { font-size: 13px; color: var(--ink-soft); margin-top: 4px; font-weight: 300; }
+    .modal-close {
+      background: none; border: none; cursor: none;
+      color: var(--ink-soft); font-size: 20px; padding: 4px;
+      line-height: 1; transition: color 0.2s; flex-shrink: 0; margin-top: 4px;
+    }
+    .modal-close:hover { color: var(--ink); }
+    .modal-body { padding: 28px 32px 32px; }
+    .modal-donor-card {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--cream); border: 1px solid var(--border);
+      padding: 16px 18px; border-radius: 2px; margin-bottom: 24px;
+    }
+    .mdc-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif; font-size: 18px;
+      font-weight: 700; color: var(--white); flex-shrink: 0;
+    }
+    .mdc-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-weight: 600; color: var(--ink);
+    }
+    .mdc-meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+    .mdc-bt {
+      margin-left: auto; font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 700; color: var(--crimson);
+    }
+    .modal-field-group { margin-bottom: 18px; }
+    .modal-field-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--ink-mid); margin-bottom: 7px;
+      display: block;
+    }
+    .modal-field-label .req { color: var(--crimson); }
+    .modal-input, .modal-select, .modal-textarea {
+      width: 100%; font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px; color: var(--ink);
+      background: var(--cream); border: 1.5px solid var(--cream-d);
+      border-radius: 2px; padding: 12px 14px; outline: none;
+      cursor: none; appearance: none;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .modal-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+    .modal-input:focus, .modal-select:focus, .modal-textarea:focus {
+      border-color: var(--crimson); background: var(--white);
+    }
+    .modal-note {
+      font-size: 12px; color: var(--ink-soft); line-height: 1.6;
+      background: rgba(140,31,40,0.04); border-left: 2px solid var(--crimson);
+      padding: 10px 14px; margin-bottom: 20px;
+    }
+    .modal-submit {
+      width: 100%; padding: 14px;
+      background: var(--crimson); color: var(--white);
+      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+      letter-spacing: 0.06em; border: none; border-radius: 2px;
+      cursor: none; position: relative; overflow: hidden; transition: background 0.25s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .modal-submit:hover { background: var(--crimson-d); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .search-main { grid-template-columns: 1fr; }
+      .filter-sidebar { position: static; }
+      .filter-panel { display: none; }
+      .filter-panel.mobile-open { display: block; }
+      .nav-links, .nav-cta { display: none; }
+      .nav-toggle { display: flex; }
+      .mobile-menu { display: block; }
+      .search-hero-stats { display: none; }
+      .donors-grid { grid-template-columns: 1fr; }
+      .quick-search-inner { gap: 8px; }
+    }
+    @media (max-width: 768px) {
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .search-hero-inner { padding: 48px 24px 40px; }
+      .search-main { padding: 32px 24px 80px; }
+      .container { padding: 0 24px; }
+      .nav-inner { padding: 18px 24px; }
+      .cta-banner { padding: 72px 0; }
+    }
+    @media (max-width: 520px) {
+      .footer-grid { grid-template-columns: 1fr; }
+      .donors-grid { grid-template-columns: 1fr; }
+      .donor-blood-badge { display: none; }
+    }
+
+    /* ── Pulse animation ── */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.75); }
+    }
+    .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success); display: inline-block;
+      animation: pulse 2s infinite;
+    }
+    .pulse-dot.orange { background: var(--gold); }
+
+    /* Mobile filter toggle */
+    .mobile-filter-toggle {
+      display: none;
+      width: 100%; padding: 13px 20px;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 2px; cursor: none;
+      font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500;
+      color: var(--ink); align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .mobile-filter-toggle svg { color: var(--crimson); }
+    @media (max-width: 1024px) {
+      .mobile-filter-toggle { display: flex; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Page Loader ── -->
+<div id="page-loader">
+  <div class="loader-content">
+    <div class="loader-logo">Blood<span>Circle</span></div>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  </div>
+</div>
+
+<!-- ── Custom Cursor ── -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- ── Nav ── -->
+<nav id="main-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-mark"></div>
+      <div class="logo-text">
+        <div class="logo-name">Blood<span>Circle</span></div>
+        <div class="logo-tagline">Life · Humanity · Hope</div>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">How It Works</a></li>
+      <li><a href="#">Our Mission</a></li>
+      <li><a href="#">Find Donors</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="register-donor.html" class="btn btn-ghost">
+        <span>Sign In</span>
+      </a>
+      <a href="#" class="btn btn-primary">
+        <span>Become a Donor</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── Mobile Menu ── -->
+<div class="mobile-menu" id="mobileMenu">
+  <ul>
+    <li><a href="#">Home</a></li>
+      <li><a href="#">How It Works</a></li>
+      <li><a href="#">Our Mission</a></li>
+      <li><a href="#">Find Donors</a></li>
+      <li><a href="#">About</a></li>
+  </ul>
+  <div class="mobile-btns">
+    <a href="register-donor.html" class="btn btn-outline"><span>Sign In</span></a>
+    <a href="#" class="btn btn-primary"><span>Become a Donor</span></a>
+  </div>
+</div>
+
+<!-- ── Page Hero ── -->
+<section class="search-hero">
+  <div class="search-hero-pattern">
+    <svg viewBox="0 0 600 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="300" cy="400" r="280" stroke="#8C1F28" stroke-width="1"/>
+      <circle cx="300" cy="400" r="200" stroke="#8C1F28" stroke-width="1"/>
+      <circle cx="300" cy="400" r="120" stroke="#8C1F28" stroke-width="1"/>
+      <circle cx="300" cy="400" r="40" stroke="#8C1F28" stroke-width="1"/>
+      <line x1="300" y1="0" x2="300" y2="800" stroke="#8C1F28" stroke-width="0.5"/>
+      <line x1="0" y1="400" x2="600" y2="400" stroke="#8C1F28" stroke-width="0.5"/>
+      <line x1="100" y1="0" x2="500" y2="800" stroke="#8C1F28" stroke-width="0.3"/>
+      <line x1="500" y1="0" x2="100" y2="800" stroke="#8C1F28" stroke-width="0.3"/>
+    </svg>
+  </div>
+  <div class="search-hero-inner">
+    <div class="search-hero-left reveal">
+      <div class="search-hero-badge">
+        <span class="tag">Verified Donor Network</span>
+      </div>
+      <h1 class="search-hero-title">
+        Find a Donor,<br>
+        <em>Save a Life Today.</em>
+      </h1>
+      <p class="search-hero-desc">Search across thousands of verified blood donors in your area. Filter by blood type, location, and availability — and connect within minutes.</p>
+      <div class="search-hero-pills">
+        <span class="hero-pill">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+          All Major Cities
+        </span>
+        <span class="hero-pill">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zm0 0v6l3 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Real-Time Availability
+        </span>
+        <span class="hero-pill">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M13 5l-6 6-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          ID-Verified Donors
+        </span>
+        <span class="hero-pill">
+          <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          All 8 Blood Types
+        </span>
+      </div>
+    </div>
+    <div class="search-hero-stats reveal">
+      <div class="sh-stat">
+        <div class="sh-stat-num"><span id="cnt1">0</span><span style="color:var(--crimson)">+</span></div>
+        <div class="sh-stat-label">Active Donors</div>
+      </div>
+      <div class="sh-stat">
+        <div class="sh-stat-num"><span id="cnt2">0</span><span style="color:var(--crimson)">+</span></div>
+        <div class="sh-stat-label">Cities Covered</div>
+      </div>
+      <div class="sh-stat">
+        <div class="sh-stat-num"><span id="cnt3">0</span><span style="color:var(--crimson)">%</span></div>
+        <div class="sh-stat-label">Verified Profiles</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Quick Search Bar ── -->
+<div class="quick-search-wrap" id="quickSearchWrap">
+  <div class="quick-search-inner">
+    <span class="qs-label">Find Donors</span>
+    <div class="qs-divider"></div>
+    <div class="qs-field">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+      <input class="qs-input" id="qsCity" type="text" placeholder="City or area..." />
+    </div>
+    <div class="qs-divider"></div>
+    <div class="qs-field">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <select class="qs-select" id="qsBlood">
+        <option value="">Any Blood Type</option>
+        <option>A+</option><option>A−</option>
+        <option>B+</option><option>B−</option>
+        <option>AB+</option><option>AB−</option>
+        <option>O+</option><option>O−</option>
+      </select>
+    </div>
+    <div class="qs-divider"></div>
+    <div class="qs-field">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <select class="qs-select" id="qsState">
+        <option value="">Any State</option>
+        <option>Maharashtra</option><option>Karnataka</option>
+        <option>Tamil Nadu</option><option>Kerala</option>
+        <option>Delhi</option><option>Telangana</option>
+        <option>West Bengal</option><option>Gujarat</option>
+        <option>Rajasthan</option><option>Uttar Pradesh</option>
+      </select>
+    </div>
+    <button class="qs-btn" onclick="applyQuickSearch()">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Search
+    </button>
+    <div class="qs-results-count" id="resultsCountBadge">Showing <strong>12</strong> donors</div>
+  </div>
+</div>
+
+<!-- ── Emergency Strip ── -->
+<div class="emergency-strip">
+  <div class="emergency-inner">
+    <div class="emerg-left">
+      <div class="emerg-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div class="emerg-text-title">Need Blood Urgently?</div>
+        <div class="emerg-text-sub">Post an emergency request and get notified within minutes.</div>
+      </div>
+    </div>
+    <button class="emerg-btn">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Post Emergency Request
+    </button>
+  </div>
+</div>
+
+<!-- ── Main Content ── -->
+<div class="search-main container" style="max-width:1264px; padding-left:32px; padding-right:32px;">
+
+  <!-- ── Filter Sidebar ── -->
+  <aside class="filter-sidebar">
+    <!-- Mobile toggle -->
+    <button class="mobile-filter-toggle" id="mobileFilterToggle" onclick="toggleMobileFilter()">
+      <span>
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Filters
+      </span>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" id="filterToggleIcon"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <div class="filter-panel reveal" id="filterPanel">
+      <div class="filter-head">
+        <div class="filter-head-title">Filters</div>
+        <button class="filter-clear" onclick="clearFilters()">Clear All</button>
+      </div>
+
+      <!-- Blood Type -->
+      <div class="filter-section">
+        <div class="filter-section-title">Blood Type</div>
+        <div class="bt-filter-grid">
+          <input type="radio" name="btFilter" id="bt-all" value="" class="bt-f-opt" checked>
+          <label for="bt-all" class="bt-f-label">
+            <span class="bt-f-type" style="font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600">All</span>
+          </label>
+          <input type="radio" name="btFilter" id="bt-ap" value="A+" class="bt-f-opt">
+          <label for="bt-ap" class="bt-f-label"><span class="bt-f-type">A+</span></label>
+          <input type="radio" name="btFilter" id="bt-an" value="A−" class="bt-f-opt">
+          <label for="bt-an" class="bt-f-label"><span class="bt-f-type">A−</span></label>
+          <input type="radio" name="btFilter" id="bt-bp" value="B+" class="bt-f-opt">
+          <label for="bt-bp" class="bt-f-label"><span class="bt-f-type">B+</span></label>
+          <input type="radio" name="btFilter" id="bt-bn" value="B−" class="bt-f-opt">
+          <label for="bt-bn" class="bt-f-label"><span class="bt-f-type">B−</span></label>
+          <input type="radio" name="btFilter" id="bt-abp" value="AB+" class="bt-f-opt">
+          <label for="bt-abp" class="bt-f-label"><span class="bt-f-type" style="font-size:13px">AB+</span></label>
+          <input type="radio" name="btFilter" id="bt-abn" value="AB−" class="bt-f-opt">
+          <label for="bt-abn" class="bt-f-label"><span class="bt-f-type" style="font-size:13px">AB−</span></label>
+          <input type="radio" name="btFilter" id="bt-op" value="O+" class="bt-f-opt">
+          <label for="bt-op" class="bt-f-label"><span class="bt-f-type">O+</span></label>
+          <input type="radio" name="btFilter" id="bt-on" value="O−" class="bt-f-opt">
+          <label for="bt-on" class="bt-f-label"><span class="bt-f-type">O−</span></label>
+        </div>
+      </div>
+
+      <!-- State -->
+      <div class="filter-section">
+        <div class="filter-section-title">State</div>
+        <select class="filter-select" id="filterState" onchange="applyFilters()">
+          <option value="">All States</option>
+          <option>Maharashtra</option>
+          <option>Karnataka</option>
+          <option>Tamil Nadu</option>
+          <option>Kerala</option>
+          <option>Delhi</option>
+          <option>Telangana</option>
+          <option>West Bengal</option>
+          <option>Gujarat</option>
+          <option>Rajasthan</option>
+          <option>Uttar Pradesh</option>
+        </select>
+      </div>
+
+      <!-- Availability -->
+      <div class="filter-section">
+        <div class="filter-section-title">Availability</div>
+        <div class="filter-check-list">
+          <label class="filter-check-item">
+            <input type="checkbox" id="fAvailNow" checked onchange="applyFilters()">
+            <div class="fc-box"></div>
+            <span class="fc-label">Available Now</span>
+            <span class="fc-count">8</span>
+          </label>
+          <label class="filter-check-item">
+            <input type="checkbox" id="fAvailSoon" checked onchange="applyFilters()">
+            <div class="fc-box"></div>
+            <span class="fc-label">Available Soon</span>
+            <span class="fc-count">4</span>
+          </label>
+          <label class="filter-check-item">
+            <input type="checkbox" id="fAvailLater" onchange="applyFilters()">
+            <div class="fc-box"></div>
+            <span class="fc-label">On Request Only</span>
+            <span class="fc-count">12</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Donation Count -->
+      <div class="filter-section">
+        <div class="filter-section-title">Donation Experience</div>
+        <div class="filter-check-list">
+          <label class="filter-check-item">
+            <input type="checkbox" id="fExpFirst" onchange="applyFilters()">
+            <div class="fc-box"></div>
+            <span class="fc-label">First Timer</span>
+            <span class="fc-count">3</span>
+          </label>
+          <label class="filter-check-item">
+            <input type="checkbox" id="fExp1to5" onchange="applyFilters()">
+            <div class="fc-box"></div>
+            <span class="fc-label">1–5 Donations</span>
+            <span class="fc-count">6</span>
+          </label>
+          <label class="filter-check-item">
+            <input type="checkbox" id="fExpSeasoned" onchange="applyFilters()">
+            <div class="fc-box"></div>
+            <span class="fc-label">6+ Donations</span>
+            <span class="fc-count">9</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Gender -->
+      <div class="filter-section">
+        <div class="filter-section-title">Gender</div>
+        <select class="filter-select" id="filterGender" onchange="applyFilters()">
+          <option value="">Any Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <!-- Verified Only -->
+      <div class="filter-section">
+        <div class="filter-section-title">Verification</div>
+        <label class="filter-check-item" style="margin-bottom:10px">
+          <input type="checkbox" id="fVerified" checked onchange="applyFilters()">
+          <div class="fc-box"></div>
+          <span class="fc-label">Verified Only</span>
+        </label>
+      </div>
+
+      <div style="padding:16px 24px 20px">
+        <button class="filter-apply-btn" onclick="applyFilters()">Apply Filters</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Results Area ── -->
+  <div class="results-area">
+    <div class="results-header reveal">
+      <div class="results-header-left">
+        <h2 class="results-title">Blood Donors</h2>
+        <p class="results-subtitle">Showing <strong id="countDisplay">12</strong> verified donors · Updated just now</p>
+      </div>
+      <div class="results-sort">
+        <span class="sort-label">Sort by</span>
+        <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+          <option>Nearest First</option>
+          <option>Most Donations</option>
+          <option>Recently Active</option>
+          <option>Urgency Match</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Active Filters -->
+    <div class="active-filters" id="activeFilters">
+      <div class="af-chip" id="chip-verified">
+        <span>Verified Only</span>
+        <button class="af-chip-remove" onclick="removeFilter('verified')">×</button>
+      </div>
+      <div class="af-chip" id="chip-avail">
+        <span>Available Now / Soon</span>
+        <button class="af-chip-remove" onclick="removeFilter('avail')">×</button>
+      </div>
+    </div>
+
+    <!-- Donors Grid -->
+    <div class="donors-grid" id="donorsGrid">
+
+      <!-- Card 1 -->
+      <div class="donor-card reveal" data-blood="O+" data-avail="now" data-state="Maharashtra" data-verified="true" data-gender="Male" data-exp="seasoned">
+        <div class="urgent-tag">Urgent Match</div>
+        <div class="donor-blood-badge">O+</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-crimson" style="margin-top:28px">
+            R
+            <div class="donor-blood">O+</div>
+          </div>
+          <div class="donor-info" style="margin-top:28px">
+            <div class="donor-name">Rajesh Kumar</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Andheri West, Mumbai
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-avail"><span class="pulse-dot" style="width:5px;height:5px;margin-right:4px"></span>Available Now</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">O Positive (O+)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">14 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">4 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">34 · Male</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Rajesh Kumar', 'O+', 'Andheri West, Mumbai')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-1" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="donor-card reveal" data-blood="A+" data-avail="now" data-state="Karnataka" data-verified="true" data-gender="Female" data-exp="moderate">
+        <div class="donor-blood-badge">A+</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-teal">
+            P
+            <div class="donor-blood">A+</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Priya Sharma</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Indiranagar, Bangalore
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-avail"><span class="pulse-dot" style="width:5px;height:5px;margin-right:4px"></span>Available Now</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">A Positive (A+)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">6 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">5 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">28 · Female</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Priya Sharma', 'A+', 'Indiranagar, Bangalore')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-2" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="donor-card reveal" data-blood="B−" data-avail="soon" data-state="Tamil Nadu" data-verified="true" data-gender="Male" data-exp="seasoned">
+        <div class="donor-blood-badge">B−</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-ink">
+            A
+            <div class="donor-blood">B−</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Arjun Nair</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              T. Nagar, Chennai
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-soon"><span class="pulse-dot orange" style="width:5px;height:5px;margin-right:4px"></span>Available Soon</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">B Negative (B−)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">11 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">3 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">31 · Male</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Arjun Nair', 'B−', 'T. Nagar, Chennai')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-3" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="donor-card reveal" data-blood="AB+" data-avail="now" data-state="Kerala" data-verified="true" data-gender="Female" data-exp="first">
+        <div class="donor-blood-badge">AB+</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-gold">
+            S
+            <div class="donor-blood">AB+</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Sneha Menon</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Kakkanad, Kochi
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-avail"><span class="pulse-dot" style="width:5px;height:5px;margin-right:4px"></span>Available Now</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">AB Positive (AB+)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">1st time</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">Never</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">25 · Female</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Sneha Menon', 'AB+', 'Kakkanad, Kochi')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-4" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="donor-card reveal" data-blood="O−" data-avail="now" data-state="Delhi" data-verified="true" data-gender="Male" data-exp="seasoned">
+        <div class="donor-blood-badge">O−</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-navy">
+            V
+            <div class="donor-blood">O−</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Vikram Singh</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Vasant Kunj, Delhi
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-avail"><span class="pulse-dot" style="width:5px;height:5px;margin-right:4px"></span>Available Now</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">O Negative (O−)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">22 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">6 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">40 · Male</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Vikram Singh', 'O−', 'Vasant Kunj, Delhi')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-5" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="donor-card reveal" data-blood="B+" data-avail="soon" data-state="Telangana" data-verified="true" data-gender="Female" data-exp="moderate">
+        <div class="donor-blood-badge">B+</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-crimson">
+            D
+            <div class="donor-blood">B+</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Deepika Rao</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Banjara Hills, Hyderabad
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-soon"><span class="pulse-dot orange" style="width:5px;height:5px;margin-right:4px"></span>Available Soon</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">B Positive (B+)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">4 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">7 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">30 · Female</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Deepika Rao', 'B+', 'Banjara Hills, Hyderabad')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-6" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 7 -->
+      <div class="donor-card reveal" data-blood="A−" data-avail="now" data-state="West Bengal" data-verified="true" data-gender="Male" data-exp="seasoned">
+        <div class="donor-blood-badge">A−</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-teal">
+            S
+            <div class="donor-blood">A−</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Saurav Ghosh</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Salt Lake, Kolkata
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-avail"><span class="pulse-dot" style="width:5px;height:5px;margin-right:4px"></span>Available Now</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">A Negative (A−)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">8 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">4 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">36 · Male</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Saurav Ghosh', 'A−', 'Salt Lake, Kolkata')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-7" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 8 -->
+      <div class="donor-card reveal" data-blood="AB−" data-avail="soon" data-state="Gujarat" data-verified="true" data-gender="Male" data-exp="moderate">
+        <div class="donor-blood-badge">AB−</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-navy">
+            H
+            <div class="donor-blood" style="font-size:6px">AB−</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Hardik Patel</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Navrangpura, Ahmedabad
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-soon"><span class="pulse-dot orange" style="width:5px;height:5px;margin-right:4px"></span>Available Soon</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">AB Negative (AB−)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">3 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">8 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">29 · Male</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Hardik Patel', 'AB−', 'Navrangpura, Ahmedabad')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-8" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 9 -->
+      <div class="donor-card reveal" data-blood="O+" data-avail="now" data-state="Rajasthan" data-verified="true" data-gender="Female" data-exp="moderate">
+        <div class="donor-blood-badge">O+</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-gold">
+            M
+            <div class="donor-blood">O+</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Meena Choudhary</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Malviya Nagar, Jaipur
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-avail"><span class="pulse-dot" style="width:5px;height:5px;margin-right:4px"></span>Available Now</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">O Positive (O+)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">5 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">4 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">27 · Female</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Meena Choudhary', 'O+', 'Malviya Nagar, Jaipur')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-9" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 10 -->
+      <div class="donor-card reveal" data-blood="A+" data-avail="now" data-state="Uttar Pradesh" data-verified="true" data-gender="Male" data-exp="seasoned">
+        <div class="donor-blood-badge">A+</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-ink">
+            N
+            <div class="donor-blood">A+</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Nikhil Gupta</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Gomti Nagar, Lucknow
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-avail"><span class="pulse-dot" style="width:5px;height:5px;margin-right:4px"></span>Available Now</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">A Positive (A+)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">9 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">5 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">33 · Male</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Nikhil Gupta', 'A+', 'Gomti Nagar, Lucknow')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-10" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 11 -->
+      <div class="donor-card reveal" data-blood="B+" data-avail="now" data-state="Maharashtra" data-verified="true" data-gender="Female" data-exp="first">
+        <div class="donor-blood-badge">B+</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-crimson">
+            A
+            <div class="donor-blood">B+</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Aisha Khan</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Bandra East, Mumbai
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-avail"><span class="pulse-dot" style="width:5px;height:5px;margin-right:4px"></span>Available Now</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">B Positive (B+)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">2 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">1 year ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">24 · Female</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Aisha Khan', 'B+', 'Bandra East, Mumbai')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-11" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card 12 -->
+      <div class="donor-card reveal" data-blood="O−" data-avail="soon" data-state="Karnataka" data-verified="true" data-gender="Male" data-exp="seasoned">
+        <div class="donor-blood-badge">O−</div>
+        <div class="donor-card-head">
+          <div class="donor-avatar av-navy">
+            K
+            <div class="donor-blood">O−</div>
+          </div>
+          <div class="donor-info">
+            <div class="donor-name">Karthik Iyer</div>
+            <div class="donor-location">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 1.5C5.5 1.5 3.5 3.7 3.5 6.5c0 3.7 4.5 8 4.5 8s4.5-4.3 4.5-8c0-2.8-2-5-4.5-5z" stroke="currentColor" stroke-width="1.3"/><circle cx="8" cy="6.5" r="1.5" fill="currentColor"/></svg>
+              Koramangala, Bangalore
+            </div>
+            <div class="donor-badges">
+              <span class="d-badge d-badge-soon"><span class="pulse-dot orange" style="width:5px;height:5px;margin-right:4px"></span>Available Soon</span>
+              <span class="d-badge d-badge-verify">✓ Verified</span>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-body">
+          <div class="donor-divider"></div>
+          <div class="donor-meta-grid">
+            <div class="donor-meta-item">
+              <div class="dmi-label">Blood Type</div>
+              <div class="dmi-val">O Negative (O−)</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Donations</div>
+              <div class="dmi-val">16 times</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Last Donated</div>
+              <div class="dmi-val">3 months ago</div>
+            </div>
+            <div class="donor-meta-item">
+              <div class="dmi-label">Age / Gender</div>
+              <div class="dmi-val">38 · Male</div>
+            </div>
+          </div>
+        </div>
+        <div class="donor-card-footer">
+          <button class="dc-btn-contact" onclick="openModal('Karthik Iyer', 'O−', 'Koramangala, Bangalore')">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13 10.5c-1.4 0-2.7-.2-3.9-.6-.3-.1-.7 0-.9.3l-1.2 1.5c-2-1-3.7-2.7-4.7-4.7l1.5-1.3c.3-.2.4-.6.3-.9C3.7 3.7 3.5 2.4 3.5 1c0-.3-.2-.5-.5-.5H1C.7.5.5.7.5 1 .5 9 7 15.5 14.5 15.5c.3 0 .5-.2.5-.5V11c0-.3-.2-.5-.5-.5h-2z" stroke="white" stroke-width="1.2"/></svg>
+            Contact Donor
+          </button>
+          <button class="dc-btn-save" id="save-12" onclick="toggleSave(this)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13.5S1.5 9.5 1.5 5.5A3.5 3.5 0 018 3a3.5 3.5 0 016.5 2.5C14.5 9.5 8 13.5 8 13.5z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- No results -->
+      <div class="no-results" id="noResults">
+        <div class="no-results-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="13" cy="13" r="8" stroke="#8C1F28" stroke-width="1.5"/><path d="M20 20l5 5" stroke="#8C1F28" stroke-width="1.5" stroke-linecap="round"/><path d="M10 13h6M13 10v6" stroke="#8C1F28" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </div>
+        <div class="no-results-title">No Donors Found</div>
+        <p class="no-results-desc">No donors match your current filters. Try broadening your search criteria or clearing some filters.</p>
+        <button class="btn btn-ghost" onclick="clearFilters()" style="margin:0 auto;display:inline-flex">
+          <span>Clear All Filters</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination">
+      <button class="page-btn arrow">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7 2L3 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <span class="page-dots">···</span>
+      <button class="page-btn">12</button>
+      <button class="page-btn arrow">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── CTA Banner ── -->
+<section class="cta-banner">
+  <div class="cta-inner reveal">
+    <span class="tag">Join the Circle</span>
+    <h2 class="cta-title">One Pint. <em>Three Lives.</em><br>Your Call.</h2>
+    <p class="cta-desc">Hundreds of patients search for donors every single day. The decision to register takes two minutes. The impact lasts forever.</p>
+    <div class="cta-actions">
+      <a href="register-donor.html" class="btn-white">
+        <span>Register as Donor</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="#" class="btn" style="background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.3)">
+        <span>Post Emergency Request</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo-name">Blood<span>Circle</span></div>
+        <div class="footer-logo-tagline">Life · Humanity · Hope</div>
+        <p class="footer-brand-desc">A trusted platform connecting blood donors with recipients across India. Every profile is verified. Every drop is precious.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Platform</div>
+        <ul class="footer-links">
+          <li><a href="register-donor.html">Register as Donor</a></li>
+          <li><a href="search-donors.html">Search Donors</a></li>
+          <li><a href="#">Blood Banks</a></li>
+          <li><a href="#">Emergency Request</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Our Mission</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Careers</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <ul class="footer-links">
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 Blood Circle. All rights reserved. Made with purpose.</span>
+      <div class="footer-socials">
+        <a href="#" class="social-btn" aria-label="Twitter">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.631 5.905-5.631zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="Facebook">
+          <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Contact Modal ── -->
+<div class="modal-overlay" id="contactModal" onclick="closeModalOnOverlay(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Contact Donor</div>
+        <div class="modal-subtitle">Your message is routed securely — contact details remain private.</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-donor-card">
+        <div class="mdc-avatar av-crimson" id="modalAvatar" style="background:var(--crimson);width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:white;flex-shrink:0"></div>
+        <div>
+          <div class="mdc-name" id="modalName">—</div>
+          <div class="mdc-meta" id="modalLoc">—</div>
+        </div>
+        <div class="mdc-bt" id="modalBT">—</div>
+      </div>
+
+      <div class="modal-note">
+        🔒 Blood Circle never shares donor phone numbers or addresses. Requests are reviewed and forwarded by our team.
+      </div>
+
+      <div class="modal-field-group">
+        <label class="modal-field-label">Your Name <span class="req">*</span></label>
+        <input class="modal-input" type="text" placeholder="Full name" />
+      </div>
+      <div class="modal-field-group">
+        <label class="modal-field-label">Your Phone <span class="req">*</span></label>
+        <input class="modal-input" type="tel" placeholder="+91 00000 00000" />
+      </div>
+      <div class="modal-field-group">
+        <label class="modal-field-label">Urgency Level <span class="req">*</span></label>
+        <select class="modal-select">
+          <option value="">Select urgency</option>
+          <option>Emergency (within 4 hours)</option>
+          <option>Urgent (within 24 hours)</option>
+          <option>Planned (within a week)</option>
+        </select>
+      </div>
+      <div class="modal-field-group">
+        <label class="modal-field-label">Message</label>
+        <textarea class="modal-textarea" placeholder="Briefly describe the need — hospital name, patient condition, location..."></textarea>
+      </div>
+      <button class="modal-submit" onclick="submitContact()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Send Request to Donor
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Page Loader
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('page-loader').classList.add('hidden');
+    }, 1400);
+  });
+
+  // ── Custom Cursor
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let mx = -100, my = -100, rx = -100, ry = -100;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+  });
+  (function animateRing() {
+    rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  })();
+  document.querySelectorAll('a, button, .donor-card, .bt-f-label, .filter-check-item').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+  // ── Nav Scroll
+  const nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // ── Mobile Menu
+  const toggle = document.getElementById('navToggle');
+  const menu = document.getElementById('mobileMenu');
+  toggle.addEventListener('click', () => {
+    toggle.classList.toggle('open');
+    menu.classList.toggle('open');
+  });
+
+  // ── Scroll Reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
+  reveals.forEach(r => observer.observe(r));
+
+  // ── Stat Counter
+  function animateCounter(el, target) {
+    let start = 0;
+    const duration = 2000;
+    const step = ts => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.floor(eased * target).toLocaleString();
+      if (progress < 1) requestAnimationFrame(step);
+      else el.textContent = target.toLocaleString();
+    };
+    requestAnimationFrame(step);
+  }
+  const statsObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounter(document.getElementById('cnt1'), 12400);
+        animateCounter(document.getElementById('cnt2'), 280);
+        animateCounter(document.getElementById('cnt3'), 98);
+        statsObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.5 });
+  const cnt1El = document.getElementById('cnt1');
+  if (cnt1El) statsObserver.observe(cnt1El.closest('.sh-stat') || cnt1El);
+
+  // ── Mobile Filter Toggle
+  function toggleMobileFilter() {
+    const panel = document.getElementById('filterPanel');
+    const icon = document.getElementById('filterToggleIcon');
+    panel.classList.toggle('mobile-open');
+    icon.style.transform = panel.classList.contains('mobile-open') ? 'rotate(180deg)' : '';
+  }
+
+  // ── Quick Search
+  function applyQuickSearch() {
+    const city = document.getElementById('qsCity').value.toLowerCase();
+    const blood = document.getElementById('qsBlood').value;
+    const state = document.getElementById('qsState').value;
+    filterCards({ city, blood, state });
+  }
+
+  // ── Filter Logic
+  function applyFilters() {
+    const btFilter = document.querySelector('input[name="btFilter"]:checked')?.value || '';
+    const stateFilter = document.getElementById('filterState').value;
+    const genderFilter = document.getElementById('filterGender').value;
+    const availNow = document.getElementById('fAvailNow').checked;
+    const availSoon = document.getElementById('fAvailSoon').checked;
+    const availLater = document.getElementById('fAvailLater').checked;
+    const verifiedOnly = document.getElementById('fVerified').checked;
+
+    const cards = document.querySelectorAll('.donor-card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const cardBlood = card.dataset.blood;
+      const cardState = card.dataset.state;
+      const cardAvail = card.dataset.avail;
+      const cardGender = card.dataset.gender;
+      const cardVerified = card.dataset.verified === 'true';
+
+      let show = true;
+      if (btFilter && cardBlood !== btFilter) show = false;
+      if (stateFilter && cardState !== stateFilter) show = false;
+      if (genderFilter && cardGender !== genderFilter) show = false;
+      if (verifiedOnly && !cardVerified) show = false;
+
+      const availMatch =
+        (availNow && cardAvail === 'now') ||
+        (availSoon && cardAvail === 'soon') ||
+        (availLater && cardAvail === 'later');
+      if (!availMatch) show = false;
+
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    document.getElementById('countDisplay').textContent = visibleCount;
+    document.getElementById('resultsCountBadge').innerHTML = `Showing <strong>${visibleCount}</strong> donors`;
+    document.getElementById('noResults').classList.toggle('show', visibleCount === 0);
+    document.getElementById('pagination').style.display = visibleCount === 0 ? 'none' : 'flex';
+
+    updateChips(btFilter, stateFilter);
+  }
+
+  function filterCards({ city, blood, state }) {
+    const cards = document.querySelectorAll('.donor-card');
+    let visibleCount = 0;
+    cards.forEach(card => {
+      const cardBlood = card.dataset.blood;
+      const cardState = card.dataset.state;
+      const cardLocation = card.querySelector('.donor-location')?.textContent.toLowerCase() || '';
+      let show = true;
+      if (blood && cardBlood !== blood) show = false;
+      if (state && cardState !== state) show = false;
+      if (city && !cardLocation.includes(city)) show = false;
+      card.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+    document.getElementById('countDisplay').textContent = visibleCount;
+    document.getElementById('resultsCountBadge').innerHTML = `Showing <strong>${visibleCount}</strong> donors`;
+    document.getElementById('noResults').classList.toggle('show', visibleCount === 0);
+    document.getElementById('pagination').style.display = visibleCount === 0 ? 'none' : 'flex';
+  }
+
+  function updateChips(bt, state) {
+    const container = document.getElementById('activeFilters');
+    let html = '';
+    if (bt) html += `<div class="af-chip"><span>Blood Type: ${bt}</span><button class="af-chip-remove" onclick="removeFilter('bt')">×</button></div>`;
+    if (state) html += `<div class="af-chip"><span>State: ${state}</span><button class="af-chip-remove" onclick="removeFilter('state')">×</button></div>`;
+    if (document.getElementById('fVerified').checked) {
+      html += `<div class="af-chip" id="chip-verified"><span>Verified Only</span><button class="af-chip-remove" onclick="removeFilter('verified')">×</button></div>`;
+    }
+    if (document.getElementById('fAvailNow').checked || document.getElementById('fAvailSoon').checked) {
+      html += `<div class="af-chip" id="chip-avail"><span>Available Now / Soon</span><button class="af-chip-remove" onclick="removeFilter('avail')">×</button></div>`;
+    }
+    container.innerHTML = html;
+  }
+
+  function removeFilter(type) {
+    if (type === 'bt') {
+      document.getElementById('bt-all').checked = true;
+    } else if (type === 'state') {
+      document.getElementById('filterState').value = '';
+    } else if (type === 'verified') {
+      document.getElementById('fVerified').checked = false;
+    } else if (type === 'avail') {
+      document.getElementById('fAvailNow').checked = false;
+      document.getElementById('fAvailSoon').checked = false;
+    }
+    applyFilters();
+  }
+
+  function clearFilters() {
+    document.getElementById('bt-all').checked = true;
+    document.getElementById('filterState').value = '';
+    document.getElementById('filterGender').value = '';
+    document.getElementById('fAvailNow').checked = true;
+    document.getElementById('fAvailSoon').checked = true;
+    document.getElementById('fAvailLater').checked = false;
+    document.getElementById('fVerified').checked = true;
+    document.getElementById('fExpFirst').checked = false;
+    document.getElementById('fExp1to5').checked = false;
+    document.getElementById('fExpSeasoned').checked = false;
+    document.getElementById('qsCity').value = '';
+    document.getElementById('qsBlood').value = '';
+    document.getElementById('qsState').value = '';
+    applyFilters();
+  }
+
+  // Blood type radio → auto filter
+  document.querySelectorAll('input[name="btFilter"]').forEach(r => {
+    r.addEventListener('change', applyFilters);
+  });
+
+  // ── Save Toggle
+  function toggleSave(btn) {
+    btn.classList.toggle('saved');
+  }
+
+  // ── Contact Modal
+  function openModal(name, bt, loc) {
+    const modal = document.getElementById('contactModal');
+    document.getElementById('modalName').textContent = name;
+    document.getElementById('modalBT').textContent = bt;
+    document.getElementById('modalLoc').textContent = loc;
+    document.getElementById('modalAvatar').textContent = name.charAt(0);
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('contactModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeModalOnOverlay(e) {
+    if (e.target.id === 'contactModal') closeModal();
+  }
+  function submitContact() {
+    const btn = document.querySelector('.modal-submit');
+    btn.innerHTML = '<span>✓ Request Sent!</span>';
+    btn.style.background = 'var(--success)';
+    setTimeout(() => {
+      closeModal();
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M7 1l6 6-6 6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Send Request to Donor';
+      btn.style.background = '';
+    }, 2000);
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // ── Pagination
+  document.querySelectorAll('.page-btn:not(.arrow)').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
