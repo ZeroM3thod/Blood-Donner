@@ -719,12 +719,6 @@ footer {
   .bt-type { font-size: 24px; }
 }
 
-/* ════════════════════════════════════════════════════════════════
-   ENHANCED PAGE LOADER
-   Add this block to the bottom of globals.css
-   (replaces the old simple #page-loader styles)
-   ════════════════════════════════════════════════════════════════ */
-
 /* ── Base ── */
 #page-loader {
   position: fixed;

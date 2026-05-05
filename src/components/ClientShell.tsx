@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -8,37 +8,43 @@ import Footer from '@/components/Footer'
 export default function ClientShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isDashboard = pathname?.startsWith('/dashboard')
-  const loaderRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    /* ── Page Loader ── */
     const loader = document.getElementById('page-loader') as HTMLDivElement | null
-    if (loader) {
-      // Animate blood drop fill
-      const fillRect = loader.querySelector('.drop-fill') as SVGRectElement | null
-      const pctEl   = loader.querySelector('#ldr-pct') as HTMLElement | null
-      const outline  = loader.querySelector('.drop-outline') as SVGPathElement | null
 
-      if (outline) {
-        const len = outline.getTotalLength?.() ?? 180
-        outline.style.strokeDasharray  = String(len)
-        outline.style.strokeDashoffset = String(len)
-        requestAnimationFrame(() => { outline.style.strokeDashoffset = '0' })
+    /* ── On dashboard: immediately kill the loader, no animation ── */
+    if (isDashboard) {
+      if (loader) {
+        loader.style.display = 'none'
       }
+    } else {
+      /* ── Page Loader (non-dashboard pages only) ── */
+      if (loader) {
+        const fillRect = loader.querySelector('.drop-fill') as SVGRectElement | null
+        const pctEl    = loader.querySelector('#ldr-pct')   as HTMLElement | null
+        const outline  = loader.querySelector('.drop-outline') as SVGPathElement | null
 
-      let pct = 0
-      const tick = setInterval(() => {
-        pct = Math.min(pct + Math.random() * 18 + 4, 100)
-        if (pctEl) pctEl.textContent = Math.floor(pct) + '%'
-        if (fillRect) fillRect.setAttribute('y', String(92 - (pct / 100) * 84))
-        if (pct >= 100) {
-          clearInterval(tick)
-          setTimeout(() => {
-            loader.classList.add('exiting')
-            setTimeout(() => loader.classList.add('hidden'), 700)
-          }, 300)
+        if (outline) {
+          const len = outline.getTotalLength?.() ?? 180
+          outline.style.strokeDasharray  = String(len)
+          outline.style.strokeDashoffset = String(len)
+          requestAnimationFrame(() => { outline.style.strokeDashoffset = '0' })
         }
-      }, 80)
+
+        let pct = 0
+        const tick = setInterval(() => {
+          pct = Math.min(pct + Math.random() * 18 + 4, 100)
+          if (pctEl)    pctEl.textContent = Math.floor(pct) + '%'
+          if (fillRect) fillRect.setAttribute('y', String(92 - (pct / 100) * 84))
+          if (pct >= 100) {
+            clearInterval(tick)
+            setTimeout(() => {
+              loader.classList.add('exiting')
+              setTimeout(() => loader.classList.add('hidden'), 700)
+            }, 300)
+          }
+        }, 80)
+      }
     }
 
     /* ── Custom Cursor ── */
@@ -72,7 +78,12 @@ export default function ClientShell({ children }: { children: React.ReactNode })
 
     /* ── Scroll-reveal ── */
     const revealObs = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) { (e.target as HTMLElement).classList.add('visible'); revealObs.unobserve(e.target) } })
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          (e.target as HTMLElement).classList.add('visible')
+          revealObs.unobserve(e.target)
+        }
+      })
     }, { threshold: 0.12 })
     document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el))
 
@@ -87,7 +98,7 @@ export default function ClientShell({ children }: { children: React.ReactNode })
       window.removeEventListener('scroll', onScroll)
       revealObs.disconnect()
     }
-  }, [])
+  }, [isDashboard])
 
   return (
     <>

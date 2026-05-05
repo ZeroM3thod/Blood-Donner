@@ -111,9 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div id="cursor-ring"></div>
 
         <ClientShell>
-          <Navbar />
           {children}
-          <Footer />
         </ClientShell>
 
       </body>
