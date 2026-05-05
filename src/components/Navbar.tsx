@@ -25,7 +25,7 @@ export default function Navbar() {
           <ul className="nav-links">
             <li><a href="/">Home</a></li>
             <li><a href="/search-donors">Find Donors</a></li>
-            <li><a href="/#features">Emergency Request</a></li>
+            <li><a href="/emergency">Emergency Request</a></li>
             <li><a href="#">About</a></li>
             <li><a href="/contact">Contact</a></li>
           </ul>
@@ -53,7 +53,7 @@ export default function Navbar() {
         <ul>
           <li><a href="/">Home</a></li>
             <li><a href="/search-donors">Find Donors</a></li>
-            <li><a href="/#features">Emergency Request</a></li>
+            <li><a href="/emergency">Emergency Request</a></li>
             <li><a href="#">About</a></li>
             <li><a href="/contact">Contact</a></li>
         </ul>
