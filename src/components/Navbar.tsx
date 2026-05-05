@@ -26,11 +26,11 @@ export default function Navbar() {
             <li><a href="/">Home</a></li>
             <li><a href="/search-donors">Find Donors</a></li>
             <li><a href="/emergency">Emergency Request</a></li>
-            <li><a href="#">About</a></li>
+            <li><a href="/about">About</a></li>
             <li><a href="/contact">Contact</a></li>
           </ul>
           <div className="nav-cta">
-            <a href="#" className="btn btn-ghost"><span>Sign In</span></a>
+            <a href="/sign-in" className="btn btn-ghost"><span>Sign In</span></a>
             <a href="/become-donor" className="btn btn-primary">
               <span>Become a Donor</span>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -54,11 +54,11 @@ export default function Navbar() {
           <li><a href="/">Home</a></li>
             <li><a href="/search-donors">Find Donors</a></li>
             <li><a href="/emergency">Emergency Request</a></li>
-            <li><a href="#">About</a></li>
+            <li><a href="/about">About</a></li>
             <li><a href="/contact">Contact</a></li>
         </ul>
         <div className="mobile-btns">
-          <a href="#" className="btn btn-outline"><span>Sign In</span></a>
+          <a href="/sign-in" className="btn btn-outline"><span>Sign In</span></a>
           <a href="/become-donor" className="btn btn-primary">
             <span>Become a Donor</span>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
