@@ -12,42 +12,96 @@ export default function ClientShell({ children }: { children: React.ReactNode })
   useEffect(() => {
     const loader = document.getElementById('page-loader') as HTMLDivElement | null
 
-    /* ── On dashboard: immediately kill the loader, no animation ── */
+    /* ── On dashboard: immediately kill the loader ── */
     if (isDashboard) {
-      if (loader) {
-        loader.style.display = 'none'
-      }
+      if (loader) loader.style.display = 'none'
     } else {
-      /* ── Page Loader (non-dashboard pages only) ── */
+      /* ── Page Loader ── */
       if (loader) {
         const fillRect = loader.querySelector('.drop-fill') as SVGRectElement | null
         const pctEl    = loader.querySelector('#ldr-pct')   as HTMLElement | null
         const outline  = loader.querySelector('.drop-outline') as SVGPathElement | null
 
+        /* ── Draw the drop outline (Safari-safe) ── */
         if (outline) {
-          const len = outline.getTotalLength?.() ?? 180
+          let len = 180
+          try {
+            // getTotalLength can throw or return 0 in some Safari versions
+            const computed = outline.getTotalLength?.()
+            if (computed && computed > 0) len = computed
+          } catch (_) { /* ignore */ }
           outline.style.strokeDasharray  = String(len)
           outline.style.strokeDashoffset = String(len)
-          requestAnimationFrame(() => { outline.style.strokeDashoffset = '0' })
+          // Use rAF to trigger the CSS transition
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              outline.style.strokeDashoffset = '0'
+            })
+          })
         }
 
+        /* ── Progress ticker ── */
         let pct = 0
+        let done = false
+
+        const finish = () => {
+          if (done) return
+          done = true
+          // Snap to 100% immediately
+          if (pctEl)    pctEl.textContent = '100%'
+          if (fillRect) fillRect.setAttribute('y', String(92 - 84)) // fully filled
+          setTimeout(() => {
+            loader.classList.add('exiting')
+            setTimeout(() => {
+              loader.classList.add('hidden')
+              loader.style.pointerEvents = 'none'
+            }, 700)
+          }, 200)
+        }
+
+        // Faster, more consistent increment — never gets stuck
+        const INTERVAL = 60   // ms per tick
+        const MIN_STEP = 8    // min % per tick
+        const MAX_STEP = 20   // max % per tick
+
         const tick = setInterval(() => {
-          pct = Math.min(pct + Math.random() * 18 + 4, 100)
+          if (done) { clearInterval(tick); return }
+
+          // Slow down near 90% to feel natural, but still always advance
+          const step = pct < 80
+            ? MIN_STEP + Math.random() * (MAX_STEP - MIN_STEP)
+            : 3 + Math.random() * 5
+
+          pct = Math.min(pct + step, 99) // never auto-complete to 100 — window load does that
+
           if (pctEl)    pctEl.textContent = Math.floor(pct) + '%'
           if (fillRect) fillRect.setAttribute('y', String(92 - (pct / 100) * 84))
-          if (pct >= 100) {
-            clearInterval(tick)
-            setTimeout(() => {
-              loader.classList.add('exiting')
-              setTimeout(() => loader.classList.add('hidden'), 700)
-            }, 300)
-          }
-        }, 80)
+        }, INTERVAL)
+
+        /* ── Complete on window load OR hard timeout (whichever is first) ── */
+        const onLoad = () => { clearInterval(tick); finish() }
+
+        if (document.readyState === 'complete') {
+          // Page already loaded (e.g. fast cache hit)
+          clearInterval(tick)
+          finish()
+        } else {
+          window.addEventListener('load', onLoad, { once: true })
+        }
+
+        // Hard safety net: force-close after 4 s no matter what
+        const safetyTimer = setTimeout(() => {
+          clearInterval(tick)
+          window.removeEventListener('load', onLoad)
+          finish()
+        }, 4000)
+
+        // Clean up safety timer if load fired naturally
+        window.addEventListener('load', () => clearTimeout(safetyTimer), { once: true })
       }
     }
 
-    /* ── Custom Cursor ── */
+    /* ── Custom Cursor (desktop only) ── */
     const dot  = document.getElementById('cursor-dot')
     const ring = document.getElementById('cursor-ring')
     if (!dot || !ring) return
