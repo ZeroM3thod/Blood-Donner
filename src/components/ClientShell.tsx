@@ -1,128 +1,99 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
 
 export default function ClientShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const isDashboard = pathname?.startsWith('/dashboard')
+  const loaderRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
+    /* ── Page Loader ── */
+    const loader = document.getElementById('page-loader') as HTMLDivElement | null
+    if (loader) {
+      // Animate blood drop fill
+      const fillRect = loader.querySelector('.drop-fill') as SVGRectElement | null
+      const pctEl   = loader.querySelector('#ldr-pct') as HTMLElement | null
+      const outline  = loader.querySelector('.drop-outline') as SVGPathElement | null
 
-    // ── ENHANCED PAGE LOADER ──────────────────────────────────────────────
-    const loader    = document.getElementById('page-loader')
-    const pctEl     = document.getElementById('ldr-pct')
-    const dropFill  = document.querySelector('.drop-fill') as SVGRectElement | null
-    const dropOutline = document.querySelector('.drop-outline') as SVGPathElement | null
-
-    if (loader && pctEl && dropFill) {
-
-      // Phase 1 — Animate the percentage counter & drop fill (0 → 100 over ~1400ms)
-      const DURATION = 1400
-      let start: number | null = null
-
-      // Set the drop-outline stroke-dasharray once we know its length
-      if (dropOutline) {
-        const len = dropOutline.getTotalLength()
-        dropOutline.style.strokeDasharray  = `${len}`
-        dropOutline.style.strokeDashoffset = `${len}`
+      if (outline) {
+        const len = outline.getTotalLength?.() ?? 180
+        outline.style.strokeDasharray  = String(len)
+        outline.style.strokeDashoffset = String(len)
+        requestAnimationFrame(() => { outline.style.strokeDashoffset = '0' })
       }
 
-      const tick = (ts: number) => {
-        if (!start) start = ts
-        const elapsed = ts - start
-        const raw = Math.min(elapsed / DURATION, 1)
-        // Ease-out cubic
-        const eased = 1 - Math.pow(1 - raw, 3)
-        const pct = Math.round(eased * 100)
-
-        // Update counter text
-        pctEl.textContent = `${pct}%`
-
-        // Rise the fill rect: y goes from 92 (bottom) → 0 (fully filled)
-        // drop coords: top≈8, bottom≈92, so height = 84
-        // We start at y=92 (no fill) and move to y=8 (full)
-        const fillY = 92 - eased * 84
-        dropFill.setAttribute('y', String(fillY))
-        dropFill.setAttribute('height', String(92 - fillY + 92)) // ensure it always covers
-
-        // Draw the outline stroke
-        if (dropOutline) {
-          const len = parseFloat(dropOutline.style.strokeDasharray)
-          dropOutline.style.strokeDashoffset = String(len * (1 - eased))
+      let pct = 0
+      const tick = setInterval(() => {
+        pct = Math.min(pct + Math.random() * 18 + 4, 100)
+        if (pctEl) pctEl.textContent = Math.floor(pct) + '%'
+        if (fillRect) fillRect.setAttribute('y', String(92 - (pct / 100) * 84))
+        if (pct >= 100) {
+          clearInterval(tick)
+          setTimeout(() => {
+            loader.classList.add('exiting')
+            setTimeout(() => loader.classList.add('hidden'), 700)
+          }, 300)
         }
-
-        if (raw < 1) {
-          requestAnimationFrame(tick)
-        } else {
-          // Phase 2 — Brief pause then exit
-          setTimeout(exitLoader, 300)
-        }
-      }
-
-      requestAnimationFrame(tick)
-
-      // Phase 3 — Exit: scale up + fade out
-      const exitLoader = () => {
-        loader.classList.add('exiting')
-        setTimeout(() => {
-          loader.classList.add('hidden')
-        }, 800)
-      }
+      }, 80)
     }
 
-    // ── CUSTOM CURSOR ────────────────────────────────────────────────────
+    /* ── Custom Cursor ── */
     const dot  = document.getElementById('cursor-dot')
     const ring = document.getElementById('cursor-ring')
-    let mx = -100, my = -100, rx = -100, ry = -100
+    if (!dot || !ring) return
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mx = e.clientX; my = e.clientY
-      if (dot) { dot.style.left = mx + 'px'; dot.style.top = my + 'px' }
-    }
-    document.addEventListener('mousemove', handleMouseMove)
+    let mx = 0, my = 0, rx = 0, ry = 0
+    const onMove = (e: MouseEvent) => { mx = e.clientX; my = e.clientY }
+    document.addEventListener('mousemove', onMove)
 
-    let rafId: number
-    const animateRing = () => {
+    let raf: number
+    const animate = () => {
       rx += (mx - rx) * 0.12
       ry += (my - ry) * 0.12
-      if (ring) { ring.style.left = rx + 'px'; ring.style.top = ry + 'px' }
-      rafId = requestAnimationFrame(animateRing)
+      dot.style.left  = mx + 'px'
+      dot.style.top   = my + 'px'
+      ring.style.left = rx + 'px'
+      ring.style.top  = ry + 'px'
+      raf = requestAnimationFrame(animate)
     }
-    animateRing()
+    raf = requestAnimationFrame(animate)
 
+    const hoverEls = 'a, button, [data-hover], input, select, textarea, label'
     const onEnter = () => document.body.classList.add('cursor-hover')
     const onLeave = () => document.body.classList.remove('cursor-hover')
-    const attachCursorHover = () => {
-      document.querySelectorAll(
-        'a, button, label, .donor-card, .bt-card, .step-card, .feature-item, .bt-f-label, .filter-check-item, .avail-label, .cond-label, .bt-label'
-      ).forEach(el => {
-        el.addEventListener('mouseenter', onEnter)
-        el.addEventListener('mouseleave', onLeave)
-      })
-    }
-    attachCursorHover()
+    document.querySelectorAll(hoverEls).forEach(el => {
+      el.addEventListener('mouseenter', onEnter)
+      el.addEventListener('mouseleave', onLeave)
+    })
 
-    // ── NAV SCROLL ───────────────────────────────────────────────────────
-    const nav = document.getElementById('main-nav')
-    const handleScroll = () => nav?.classList.toggle('scrolled', window.scrollY > 40)
-    window.addEventListener('scroll', handleScroll)
+    /* ── Scroll-reveal ── */
+    const revealObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { (e.target as HTMLElement).classList.add('visible'); revealObs.unobserve(e.target) } })
+    }, { threshold: 0.12 })
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el))
 
-    // ── SCROLL REVEAL ────────────────────────────────────────────────────
-    const reveals = document.querySelectorAll('.reveal')
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 60)
-          revealObserver.unobserve(entry.target)
-        }
-      })
-    }, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' })
-    reveals.forEach(r => revealObserver.observe(r))
+    /* ── Nav scroll state ── */
+    const nav = document.querySelector('nav')
+    const onScroll = () => nav?.classList.toggle('scrolled', window.scrollY > 20)
+    window.addEventListener('scroll', onScroll)
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      cancelAnimationFrame(rafId)
-      window.removeEventListener('scroll', handleScroll)
-      revealObserver.disconnect()
+      cancelAnimationFrame(raf)
+      document.removeEventListener('mousemove', onMove)
+      window.removeEventListener('scroll', onScroll)
+      revealObs.disconnect()
     }
   }, [])
 
-  return <>{children}</>
+  return (
+    <>
+      {!isDashboard && <Navbar />}
+      {children}
+      {!isDashboard && <Footer />}
+    </>
+  )
 }
