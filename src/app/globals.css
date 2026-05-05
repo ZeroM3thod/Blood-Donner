@@ -719,195 +719,385 @@ footer {
   .bt-type { font-size: 24px; }
 }
 
-/* ── Base ── */
+
+/* ══════════════════════════════════════════
+   PAGE LOADER  —  Medical Terminal Boot
+   ══════════════════════════════════════════ */
+
 #page-loader {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: var(--ink);
+  background: #080808;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
   overflow: hidden;
-  /* Exit transition */
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.77, 0, 0.18, 1);
 }
 
-/* Noise-grain texture overlay */
-.ldr-bg {
+/* Red vignette atmosphere */
+#page-loader > .ldr-vignette {
+  content: '';
   position: absolute;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(140,31,40,0.22) 100%);
   pointer-events: none;
-  opacity: 0.6;
+  z-index: 0;
 }
 
-/* ── Exit states ── */
-#page-loader.exiting {
-  opacity: 0;
-  transform: scale(1.04);
-}
-#page-loader.hidden {
-  opacity: 0;
+/* Animated grain */
+.ldr-grain {
+  position: absolute;
+  inset: -50%;
+  width: 200%; height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  animation: grain-drift 6s steps(8) infinite;
   pointer-events: none;
-  transform: scale(1.04);
+  z-index: 1;
+  opacity: 0.45;
+}
+@keyframes grain-drift {
+  0%  { transform: translate(0,0); }
+  12% { transform: translate(-4%,-3%); }
+  25% { transform: translate(-8%, 4%); }
+  37% { transform: translate( 4%,-8%); }
+  50% { transform: translate(-3%,12%); }
+  62% { transform: translate(-9%, 4%); }
+  75% { transform: translate(12%, 0%); }
+  87% { transform: translate( 0%, 8%); }
 }
 
-/* ── Ripple rings ── */
-.ldr-rings {
+/* Horizontal rule lines — subtle grid */
+.ldr-grid {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 47px,
+    rgba(140,31,40,0.04) 47px,
+    rgba(140,31,40,0.04) 48px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Horizontal scanline sweep */
+.ldr-scan {
+  position: absolute;
+  left: 0; right: 0;
+  height: 140px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(140,31,40,0.03) 35%,
+    rgba(180,40,50,0.07) 50%,
+    rgba(140,31,40,0.03) 65%,
+    transparent 100%
+  );
+  animation: scan-sweep 4.5s linear infinite;
+  z-index: 2;
   pointer-events: none;
 }
-.ldr-ring {
+@keyframes scan-sweep {
+  0%   { top: -140px; }
+  100% { top: 100%; }
+}
+
+/* Corner cross marks — medical feel */
+.ldr-corner {
   position: absolute;
-  border-radius: 50%;
-  border: 1px solid rgba(140, 31, 40, 0.25);
-  animation: ldr-ring-expand 3s ease-out infinite;
+  z-index: 3;
+  width: 20px; height: 20px;
+  opacity: 0;
+  animation: ldr-fade-in 0.5s 0.4s ease both;
 }
-.ldr-ring.r1 { width: 160px; height: 160px; animation-delay: 0s; }
-.ldr-ring.r2 { width: 280px; height: 280px; animation-delay: 0.6s; }
-.ldr-ring.r3 { width: 420px; height: 420px; animation-delay: 1.2s; }
-
-@keyframes ldr-ring-expand {
-  0%   { transform: scale(0.6); opacity: 0.6; }
-  70%  { opacity: 0.15; }
-  100% { transform: scale(1.3); opacity: 0; }
+.ldr-corner::before,
+.ldr-corner::after {
+  content: '';
+  position: absolute;
+  background: rgba(140,31,40,0.45);
+  border-radius: 1px;
 }
+.ldr-corner::before { width: 1px; height: 16px; left: 50%; top: 2px; }
+.ldr-corner::after  { width: 16px; height: 1px; top: 50%; left: 2px; }
+.ldr-corner.tl { top: 28px; left: 28px; }
+.ldr-corner.tr { top: 28px; right: 28px; }
+.ldr-corner.bl { bottom: 28px; left: 28px; }
+.ldr-corner.br { bottom: 28px; right: 28px; }
 
-/* ── Blood Drop ── */
-.ldr-drop-wrap {
+/* Corner label text */
+.ldr-corner-label {
+  position: absolute;
+  z-index: 3;
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(140,31,40,0.3);
+  opacity: 0;
+  animation: ldr-fade-in 0.5s 0.6s ease both;
+}
+.ldr-corner-label.tl { top: 52px; left: 28px; }
+.ldr-corner-label.br { bottom: 52px; right: 28px; text-align: right; }
+
+/* ── Split-panel exit ── */
+.ldr-panel-top,
+.ldr-panel-bot {
+  position: absolute;
+  left: 0; right: 0;
+  background: #080808;
+  z-index: 20;
+  transition: transform 0.9s cubic-bezier(0.77, 0, 0.18, 1);
+}
+.ldr-panel-top { top: 0; height: 50%; }
+.ldr-panel-bot { bottom: 0; height: 50%; }
+
+#page-loader.exiting .ldr-panel-top { transform: translateY(-100%); }
+#page-loader.exiting .ldr-panel-bot { transform: translateY(100%); }
+#page-loader.hidden  { pointer-events: none; display: none; }
+
+/* ── Content wrapper ── */
+.ldr-content {
   position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 540px;
+  padding: 0 40px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+}
+
+/* ── Brand ── */
+.ldr-brand {
+  display: flex;
   align-items: center;
-  margin-bottom: 36px;
-  animation: ldr-drop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  gap: 14px;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: ldr-fade-up 0.7s 0.15s cubic-bezier(0.34,1.2,0.64,1) both;
 }
-
-@keyframes ldr-drop-in {
-  from { opacity: 0; transform: translateY(-24px) scale(0.8); }
-  to   { opacity: 1; transform: translateY(0)    scale(1); }
+.ldr-brand-mark {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--crimson);
+  flex-shrink: 0;
+  position: relative;
+  animation: ldr-mark-pulse 2.2s ease infinite;
 }
-
-.ldr-drop-svg {
-  width: 72px;
-  height: 90px;
-  filter: drop-shadow(0 8px 24px rgba(140, 31, 40, 0.5));
+.ldr-brand-mark::after {
+  content: '';
+  width: 16px; height: 16px;
+  border: 1.5px solid rgba(255,255,255,0.7);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
 }
-
-/* Stroke-dashoffset draw animation — length is set by JS */
-.drop-outline {
-  transition: stroke-dashoffset 1.4s cubic-bezier(0.77, 0, 0.18, 1);
+.ldr-brand-mark::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 1;
 }
-
-/* Fill rect — y is animated by JS */
-.drop-fill {
-  transition: y 1.4s cubic-bezier(0.77, 0, 0.18, 1);
+@keyframes ldr-mark-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(140,31,40,0.55); }
+  70%  { box-shadow: 0 0 0 14px rgba(140,31,40,0); }
+  100% { box-shadow: 0 0 0 0   rgba(140,31,40,0); }
 }
-
-/* Shine shimmer */
-.drop-shine {
-  animation: ldr-shine 2s ease-in-out infinite;
-}
-@keyframes ldr-shine {
-  0%, 100% { opacity: 0.15; transform: translateY(0); }
-  50%       { opacity: 0.4;  transform: translateY(4px); }
-}
-
-/* Percentage text */
-.ldr-drop-pct {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
+.ldr-brand-texts {}
+.ldr-brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
   font-weight: 600;
-  letter-spacing: 0.18em;
-  color: rgba(140, 31, 40, 0.8);
-  margin-top: 8px;
-  min-width: 40px;
-  text-align: center;
-  animation: ldr-drop-in 0.8s 0.2s both;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.ldr-brand-name span { color: var(--crimson-l); }
+.ldr-brand-sub {
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 4px;
 }
 
-/* ── EKG Line ── */
+/* ── Giant percentage ── */
+.ldr-pct-huge {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(96px, 16vw, 140px);
+  font-weight: 700;
+  line-height: 0.88;
+  letter-spacing: -0.04em;
+  color: var(--white);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: ldr-fade-up 0.6s 0.3s ease both;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.ldr-pct-sign {
+  font-size: 0.33em;
+  font-weight: 300;
+  color: var(--crimson-l);
+  align-self: flex-end;
+  margin-bottom: 10px;
+}
+
+/* ── Progress bar ── */
+.ldr-bar-wrap {
+  width: 100%;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: ldr-fade-up 0.6s 0.45s ease both;
+}
+.ldr-bar-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.ldr-bar-meta-left {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.18);
+}
+.ldr-bar-meta-right {
+  font-family: 'Courier New', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: rgba(168,50,61,0.8);
+}
+.ldr-bar-track {
+  height: 1px;
+  background: rgba(255,255,255,0.07);
+  position: relative;
+  overflow: visible;
+}
+.ldr-bar-fill {
+  position: absolute;
+  top: 0; left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--crimson-d), var(--crimson-l));
+  transition: width 0.12s linear;
+}
+/* Glowing leading dot */
+.ldr-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #ff5555;
+  box-shadow:
+    0 0 6px  rgba(255,60,60,1),
+    0 0 14px rgba(255,60,60,0.6),
+    0 0 28px rgba(255,60,60,0.3);
+}
+
+/* ── Terminal log ── */
+.ldr-terminal {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-bottom: 44px;
+}
+.ldr-log-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transform: translateX(-6px);
+}
+.ldr-log-line.ldr-visible {
+  animation: ldr-log-slide 0.35s ease forwards;
+}
+@keyframes ldr-log-slide {
+  to { opacity: 1; transform: translateX(0); }
+}
+.ldr-prompt {
+  color: var(--crimson);
+  font-size: 10px;
+  font-family: 'Courier New', monospace;
+  flex-shrink: 0;
+}
+.ldr-log-text {
+  font-family: 'Courier New', monospace;
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.01em;
+  flex: 1;
+}
+.ldr-status {
+  font-family: 'Courier New', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 1px;
+  font-weight: 500;
+  flex-shrink: 0;
+  transition: all 0.4s ease;
+}
+.ldr-status.st-ok {
+  color: #5dd87a;
+  border: 1px solid rgba(93,216,122,0.28);
+  background: rgba(93,216,122,0.06);
+}
+.ldr-status.st-wait {
+  color: rgba(168,50,61,0.85);
+  border: 1px solid rgba(140,31,40,0.3);
+  background: rgba(140,31,40,0.07);
+  animation: ldr-blink 0.85s step-start infinite;
+}
+@keyframes ldr-blink { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+/* ── EKG strip ── */
 .ldr-ekg-wrap {
-  width: 240px;
-  height: 36px;
-  margin-bottom: 32px;
+  width: 100%;
+  height: 28px;
   overflow: hidden;
   opacity: 0;
-  animation: ldr-fade-in 0.4s 0.4s ease both;
+  animation: ldr-fade-in 0.5s 0.7s ease both;
 }
+.ldr-ekg { width: 100%; height: 100%; }
+.ekg-line {
+  stroke-dasharray: 380;
+  stroke-dashoffset: 380;
+  animation:
+    ldr-ekg-draw   1s   0.5s cubic-bezier(0.77,0,0.18,1) forwards,
+    ldr-ekg-scroll 0.8s 1.5s linear infinite;
+}
+@keyframes ldr-ekg-draw   { to { stroke-dashoffset: 0; } }
+@keyframes ldr-ekg-scroll { from { transform:translateX(0); } to { transform:translateX(-34%); } }
 
+/* ── Shared keyframes ── */
+@keyframes ldr-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 @keyframes ldr-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-.ldr-ekg {
-  width: 100%;
-  height: 100%;
-}
-
-.ekg-line {
-  /* Total length ≈ 380 — close enough for the trick */
-  stroke-dasharray: 380;
-  stroke-dashoffset: 380;
-  animation: ldr-ekg-draw 1s 0.3s cubic-bezier(0.77, 0, 0.18, 1) forwards,
-             ldr-ekg-scroll 0.7s 1.3s linear infinite;
-}
-
-@keyframes ldr-ekg-draw {
-  to { stroke-dashoffset: 0; }
-}
-
-/* After drawing, continuously scroll the line to the left */
-@keyframes ldr-ekg-scroll {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-34%); }
-}
-
-/* ── Logo Letters ── */
-.ldr-logo {
-  display: flex;
-  align-items: baseline;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(28px, 5vw, 42px);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--white);
-  margin-bottom: 12px;
-}
-
-.ldr-ch {
-  display: inline-block;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: ldr-char-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  /* delay = 0.5s base + 0.06s × --i */
-  animation-delay: calc(0.5s + var(--i, 0) * 0.06s);
-}
-
-.ldr-accent {
-  color: var(--crimson-l);
-}
-
-@keyframes ldr-char-in {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Tagline ── */
-.ldr-tagline {
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.28);
-  opacity: 0;
-  animation: ldr-fade-in 0.6s 1.3s ease both;
+/* ── Mobile adjustments for loader ── */
+@media (max-width: 600px) {
+  .ldr-content { padding: 0 28px; }
+  .ldr-pct-huge { font-size: clamp(72px, 20vw, 100px); }
+  .ldr-corner-label { display: none; }
 }

@@ -16,87 +16,112 @@ export default function ClientShell({ children }: { children: React.ReactNode })
     if (isDashboard) {
       if (loader) loader.style.display = 'none'
     } else {
-      /* ── Page Loader ── */
+      /* ═══════════════════════════════════════════
+         MEDICAL TERMINAL BOOT LOADER
+         ═══════════════════════════════════════════ */
       if (loader) {
-        const fillRect = loader.querySelector('.drop-fill') as SVGRectElement | null
-        const pctEl    = loader.querySelector('#ldr-pct')   as HTMLElement | null
-        const outline  = loader.querySelector('.drop-outline') as SVGPathElement | null
+        const pctHuge  = document.getElementById('ldr-pct-huge')
+        const barFill  = document.getElementById('ldr-bar-fill')
+        const barLabel = document.getElementById('ldr-bar-label')
 
-        /* ── Draw the drop outline (Safari-safe) ── */
-        if (outline) {
-          let len = 180
-          try {
-            // getTotalLength can throw or return 0 in some Safari versions
-            const computed = outline.getTotalLength?.()
-            if (computed && computed > 0) len = computed
-          } catch (_) { /* ignore */ }
-          outline.style.strokeDasharray  = String(len)
-          outline.style.strokeDashoffset = String(len)
-          // Use rAF to trigger the CSS transition
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              outline.style.strokeDashoffset = '0'
-            })
-          })
+        // Terminal log lines & statuses
+        const lines    = [0,1,2,3].map(i => document.getElementById(`ldr-line-${i}`))
+        const statuses = [0,1,2,3].map(i => document.getElementById(`ldr-st-${i}`))
+
+        // Thresholds at which each log line appears & completes
+        const LINE_SHOW = [0,   18,  42,  72 ]  // pct to show line
+        const LINE_OK   = [22,  45,  75,  96 ]  // pct to mark OK
+        const LABELS    = [
+          'Initializing…',
+          'Loading registry…',
+          'Verifying donors…',
+          'Securing session…',
+          'System ready.',
+        ]
+
+        let pct  = 0
+        let done = false
+        const lineShown    = [false,false,false,false]
+        const lineComplete = [false,false,false,false]
+
+        /* ── Update the UI ── */
+        const updateUI = (p: number) => {
+          // Big number
+          if (pctHuge) {
+            const numNode = pctHuge.childNodes[0]
+            if (numNode) numNode.nodeValue = String(Math.floor(p))
+          }
+
+          // Bar fill
+          if (barFill) barFill.style.width = p + '%'
+
+          // Bar label
+          if (barLabel) {
+            const idx = p < 22 ? 0 : p < 45 ? 1 : p < 75 ? 2 : p < 96 ? 3 : 4
+            barLabel.textContent = LABELS[idx]
+          }
+
+          // Terminal lines
+          for (let i = 0; i < 4; i++) {
+            // Show the line
+            if (!lineShown[i] && p >= LINE_SHOW[i]) {
+              lineShown[i] = true
+              lines[i]?.classList.add('ldr-visible')
+            }
+            // Mark OK
+            if (!lineComplete[i] && p >= LINE_OK[i]) {
+              lineComplete[i] = true
+              const st = statuses[i]
+              if (st) {
+                st.classList.remove('st-wait')
+                st.classList.add('st-ok')
+                st.textContent = 'ok'
+              }
+            }
+          }
         }
 
-        /* ── Progress ticker ── */
-        let pct = 0
-        let done = false
-
+        /* ── Finish animation & split-exit ── */
         const finish = () => {
           if (done) return
           done = true
-          // Snap to 100% immediately
-          if (pctEl)    pctEl.textContent = '100%'
-          if (fillRect) fillRect.setAttribute('y', String(92 - 84)) // fully filled
+          updateUI(100)
           setTimeout(() => {
             loader.classList.add('exiting')
             setTimeout(() => {
               loader.classList.add('hidden')
-              loader.style.pointerEvents = 'none'
-            }, 700)
-          }, 200)
+            }, 950)
+          }, 280)
         }
 
-        // Faster, more consistent increment — never gets stuck
-        const INTERVAL = 60   // ms per tick
-        const MIN_STEP = 8    // min % per tick
-        const MAX_STEP = 20   // max % per tick
-
+        /* ── Tick ── */
+        const INTERVAL = 55
         const tick = setInterval(() => {
           if (done) { clearInterval(tick); return }
-
-          // Slow down near 90% to feel natural, but still always advance
-          const step = pct < 80
-            ? MIN_STEP + Math.random() * (MAX_STEP - MIN_STEP)
-            : 3 + Math.random() * 5
-
-          pct = Math.min(pct + step, 99) // never auto-complete to 100 — window load does that
-
-          if (pctEl)    pctEl.textContent = Math.floor(pct) + '%'
-          if (fillRect) fillRect.setAttribute('y', String(92 - (pct / 100) * 84))
+          const step = pct < 75
+            ? 7 + Math.random() * 14
+            : 2 + Math.random() * 5
+          pct = Math.min(pct + step, 99)
+          updateUI(pct)
         }, INTERVAL)
 
-        /* ── Complete on window load OR hard timeout (whichever is first) ── */
+        /* ── Complete on window load ── */
         const onLoad = () => { clearInterval(tick); finish() }
 
         if (document.readyState === 'complete') {
-          // Page already loaded (e.g. fast cache hit)
           clearInterval(tick)
           finish()
         } else {
           window.addEventListener('load', onLoad, { once: true })
         }
 
-        // Hard safety net: force-close after 4 s no matter what
+        // Hard safety net
         const safetyTimer = setTimeout(() => {
           clearInterval(tick)
           window.removeEventListener('load', onLoad)
           finish()
         }, 4000)
 
-        // Clean up safety timer if load fired naturally
         window.addEventListener('load', () => clearTimeout(safetyTimer), { once: true })
       }
     }

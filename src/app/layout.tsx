@@ -22,87 +22,102 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
 
-        {/* ── ENHANCED PAGE LOADER ── */}
+        {/* ══════════════════════════════════════════
+            MEDICAL TERMINAL BOOT LOADER
+            ══════════════════════════════════════════ */}
         <div id="page-loader">
 
-          {/* Noise texture overlay */}
-          <div className="ldr-bg"></div>
+          {/* Atmosphere layers */}
+          <div className="ldr-vignette"></div>
+          <div className="ldr-grain"></div>
+          <div className="ldr-grid"></div>
+          <div className="ldr-scan"></div>
 
-          {/* Expanding ripple rings */}
-          <div className="ldr-rings">
-            <div className="ldr-ring r1"></div>
-            <div className="ldr-ring r2"></div>
-            <div className="ldr-ring r3"></div>
+          {/* Corner medical cross marks */}
+          <div className="ldr-corner tl"></div>
+          <div className="ldr-corner tr"></div>
+          <div className="ldr-corner bl"></div>
+          <div className="ldr-corner br"></div>
+
+          {/* Corner labels */}
+          <div className="ldr-corner-label tl">BC-SYS-2025</div>
+          <div className="ldr-corner-label br">v2.4.1 · INDIA</div>
+
+          {/* ── Main content ── */}
+          <div className="ldr-content">
+
+            {/* Brand */}
+            <div className="ldr-brand">
+              <div className="ldr-brand-mark"></div>
+              <div className="ldr-brand-texts">
+                <div className="ldr-brand-name">Blood<span>Circle</span></div>
+                <div className="ldr-brand-sub">Life · Humanity · Hope</div>
+              </div>
+            </div>
+
+            {/* Giant percentage number */}
+            <div className="ldr-pct-huge" id="ldr-pct-huge">
+              0<span className="ldr-pct-sign">%</span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="ldr-bar-wrap">
+              <div className="ldr-bar-meta">
+                <span className="ldr-bar-meta-left">System Loading</span>
+                <span className="ldr-bar-meta-right" id="ldr-bar-label">Initializing…</span>
+              </div>
+              <div className="ldr-bar-track">
+                <div className="ldr-bar-fill" id="ldr-bar-fill"></div>
+              </div>
+            </div>
+
+            {/* Terminal boot log */}
+            <div className="ldr-terminal">
+              <div className="ldr-log-line" id="ldr-line-0">
+                <span className="ldr-prompt">▸</span>
+                <span className="ldr-log-text">Initializing secure donor network</span>
+                <span className="ldr-status st-wait" id="ldr-st-0">wait</span>
+              </div>
+              <div className="ldr-log-line" id="ldr-line-1">
+                <span className="ldr-prompt">▸</span>
+                <span className="ldr-log-text">Loading blood type registry</span>
+                <span className="ldr-status st-wait" id="ldr-st-1">wait</span>
+              </div>
+              <div className="ldr-log-line" id="ldr-line-2">
+                <span className="ldr-prompt">▸</span>
+                <span className="ldr-log-text">Verifying 48,200+ active donors</span>
+                <span className="ldr-status st-wait" id="ldr-st-2">wait</span>
+              </div>
+              <div className="ldr-log-line" id="ldr-line-3">
+                <span className="ldr-prompt">▸</span>
+                <span className="ldr-log-text">Establishing secure session</span>
+                <span className="ldr-status st-wait" id="ldr-st-3">wait</span>
+              </div>
+            </div>
+
+            {/* EKG heartbeat line */}
+            <div className="ldr-ekg-wrap">
+              <svg
+                className="ldr-ekg"
+                viewBox="0 0 320 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="none"
+              >
+                <polyline
+                  className="ekg-line"
+                  points="0,24 40,24 52,24 58,8 64,40 70,4 76,44 82,24 94,24 134,24 140,24 146,8 152,40 158,4 164,44 170,24 182,24 222,24 228,24 234,8 240,40 246,4 252,44 258,24 270,24 320,24"
+                  stroke="#8C1F28" strokeWidth="1.5" fill="none"
+                  strokeLinecap="round" strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
           </div>
 
-          {/* Blood drop with fill animation */}
-          <div className="ldr-drop-wrap">
-            <svg className="ldr-drop-svg" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <clipPath id="dropClip">
-                  <path d="M40 8 C40 8 10 40 10 62 C10 80 24 92 40 92 C56 92 70 80 70 62 C70 40 40 8 40 8 Z"/>
-                </clipPath>
-                <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#A8323D"/>
-                  <stop offset="100%" stopColor="#6B1520"/>
-                </linearGradient>
-              </defs>
-              {/* Drop outline — draws itself */}
-              <path
-                className="drop-outline"
-                d="M40 8 C40 8 10 40 10 62 C10 80 24 92 40 92 C56 92 70 80 70 62 C70 40 40 8 40 8 Z"
-                stroke="#8C1F28" strokeWidth="2" fill="none"
-              />
-              {/* Fill rect clipped to drop shape, rises upward */}
-              <rect
-                className="drop-fill"
-                x="0" y="92" width="80" height="92"
-                fill="url(#fillGrad)"
-                clipPath="url(#dropClip)"
-              />
-              {/* Inner shine highlight */}
-              <ellipse
-                className="drop-shine"
-                cx="30" cy="45" rx="6" ry="10"
-                fill="rgba(255,255,255,0.15)"
-                clipPath="url(#dropClip)"
-              />
-            </svg>
-            {/* Percentage counter */}
-            <div className="ldr-drop-pct" id="ldr-pct">0%</div>
-          </div>
-
-          {/* EKG heartbeat line */}
-          <div className="ldr-ekg-wrap">
-            <svg
-              className="ldr-ekg"
-              viewBox="0 0 320 48"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-            >
-              <polyline
-                className="ekg-line"
-                points="0,24 40,24 52,24 58,8 64,40 70,4 76,44 82,24 94,24 134,24 140,24 146,8 152,40 158,4 164,44 170,24 182,24 222,24 228,24 234,8 240,40 246,4 252,44 258,24 270,24 320,24"
-                stroke="#8C1F28" strokeWidth="2" fill="none"
-                strokeLinecap="round" strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-
-          {/* Logo — letter-by-letter stagger reveal */}
-          <div className="ldr-logo">
-            {'Blood'.split('').map((ch, i) => (
-              <span key={i} className="ldr-ch" style={{ '--i': i } as React.CSSProperties}>{ch}</span>
-            ))}
-            <span className="ldr-ch ldr-accent" style={{ '--i': 5 } as React.CSSProperties}>C</span>
-            {'ircle'.split('').map((ch, i) => (
-              <span key={i + 6} className="ldr-ch" style={{ '--i': i + 6 } as React.CSSProperties}>{ch}</span>
-            ))}
-          </div>
-
-          {/* Tagline */}
-          <div className="ldr-tagline">Life · Humanity · Hope</div>
+          {/* ── Split-panel exit curtains ── */}
+          <div className="ldr-panel-top"></div>
+          <div className="ldr-panel-bot"></div>
 
         </div>
 
