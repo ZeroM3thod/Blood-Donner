@@ -40,7 +40,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span className="footer-copy">© 2025 Blood Circle. All rights reserved. Made with purpose.</span>
+          <span className="footer-copy">© 2026Blood Circle. All rights reserved. Made with purpose.</span>
           <div className="footer-socials">
             <a href="#" className="social-btn" aria-label="Twitter">
               <svg viewBox="0 0 24 24">

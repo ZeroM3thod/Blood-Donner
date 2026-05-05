@@ -91,7 +91,7 @@ export default function AboutPage() {
                 <div className="ahm-label">Donors</div>
               </div>
               <div className="ahm-item">
-                <div className="ahm-num">190<span>+</span></div>
+                <div className="ahm-num">60<span>+</span></div>
                 <div className="ahm-label">Cities</div>
               </div>
             </div>
@@ -118,7 +118,7 @@ export default function AboutPage() {
                   </div>
                   <div className="av-row">
                     <span className="av-row-key">Network</span>
-                    <span className="av-row-val crimson">190+ cities</span>
+                    <span className="av-row-val crimson">60+ cities</span>
                   </div>
                   <div className="av-row">
                     <span className="av-row-key">Avg Response</span>
@@ -562,11 +562,11 @@ export default function AboutPage() {
           </div>
           <div className="partners-grid reveal">
             {[
-              { name: 'AIIMS New Delhi', type: 'Government Hospital' },
-              { name: 'Apollo Hospitals', type: 'Private Healthcare' },
-              { name: 'Fortis Healthcare', type: 'Hospital Chain' },
-              { name: 'Red Cross', type: 'NGO Partner' },
-              { name: 'Max Healthcare', type: 'Hospital Network' },
+              { name: 'Dhaka Medical College', type: 'Government Hospital' },
+              { name: 'United Hospital Limited', type: 'Private Healthcare' },
+              { name: 'Kurmitola General Hospital', type: 'Government & Military Hospital' },
+              { name: 'Red Heart Foundation', type: 'NGO Partner' },
+              { name: 'National Healthcare Network', type: 'Hospital Network' },
             ].map((p, i) => (
               <div key={i} className="partner-card">
                 <div className="partner-logo">{p.name}</div>
