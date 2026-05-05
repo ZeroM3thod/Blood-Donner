@@ -77,13 +77,13 @@ export default function AboutPage() {
               </em>
             </h1>
             <p className="about-hero-desc">
-              Blood Circle was founded when a father couldn't find a blood donor for his daughter in
-              the middle of the night. That moment of helplessness became our mission: <strong style={{ color: 'var(--ink)', fontWeight: 500 }}>no one should
+              Blood Circle was founded when a desperate search for blood in the middle of the night
+              changed everything. That moment of helplessness became our mission: <strong style={{ color: 'var(--ink)', fontWeight: 500 }}>no one should
               ever search in vain for blood.</strong>
             </p>
             <div className="about-hero-meta">
               <div className="ahm-item">
-                <div className="ahm-num">2021<span>.</span></div>
+                <div className="ahm-num">2026<span>.</span></div>
                 <div className="ahm-label">Founded</div>
               </div>
               <div className="ahm-item">
@@ -105,12 +105,12 @@ export default function AboutPage() {
                 <div className="av-card-top">
                   <div className="av-card-label">Our Foundation</div>
                   <div className="av-card-title">Built on the belief that every life is worth saving.</div>
-                  <div className="av-card-year">2021</div>
+                  <div className="av-card-year">2026</div>
                 </div>
                 <div className="av-card-body">
                   <div className="av-row">
                     <span className="av-row-key">Headquarters</span>
-                    <span className="av-row-val">Mumbai, India</span>
+                    <span className="av-row-val">Dhaka, Bangladesh</span>
                   </div>
                   <div className="av-row">
                     <span className="av-row-key">Team Size</span>
@@ -166,7 +166,7 @@ export default function AboutPage() {
             <div className="ms-title">Our Mission</div>
             <div className="ms-desc">
               To create a world where no patient waits more than an hour for compatible blood,
-              anywhere in India.
+              anywhere across the country.
             </div>
           </div>
 
@@ -220,18 +220,20 @@ export default function AboutPage() {
               </div>
 
               <p className="story-lead">
-                "My daughter needed O− blood. It was 2 a.m. I called 14 hospitals. Nobody had it."
+                "Someone needed O− blood. It was 2 a.m. We called hospital after hospital. Nobody had it."
               </p>
               <p className="story-body">
-                That father was <strong>Rajan Iyer</strong>, our founder. After a stranger saved his daughter's
-                life by answering a desperate Facebook post at 3 a.m., Rajan spent the next year
+                That moment of desperation never left <strong>Rakibul Hasan Rakib</strong>, our founder.
+                After witnessing a family's frantic search for blood with no system to help them,
+                Rakib partnered with <strong>Atiqur Rahman Jibon</strong> and spent the next year
                 building what should have already existed: a dedicated, verified, real-time network of
-                blood donors across India.
+                blood donors — accessible to anyone, at any hour.
               </p>
               <p className="story-body">
-                Blood Circle launched in 2021 with 200 donors in Mumbai. By the end of that year,
-                we had <strong>12,000 donors across 40 cities</strong>. Today, we're the country's
-                fastest-growing blood donor network — because the need never stops.
+                Blood Circle launched in August 2026 with a clear goal: make blood donation as
+                simple and reliable as calling an ambulance. What started as a bold idea between two
+                friends is now a <strong>growing network of verified donors</strong> united by a
+                single belief — a stranger's life is worth your time.
               </p>
               <p className="story-body">
                 Every feature, every policy, every design decision is made with one question in mind:
@@ -241,7 +243,7 @@ export default function AboutPage() {
               <div className="story-signature">
                 <div className="story-sig-avatar">R</div>
                 <div>
-                  <div className="story-sig-name">Rajan Iyer</div>
+                  <div className="story-sig-name">Rakibul Hasan Rakib</div>
                   <div className="story-sig-role">Founder &amp; CEO, Blood Circle</div>
                 </div>
               </div>
@@ -252,43 +254,43 @@ export default function AboutPage() {
               <div className="story-timeline">
                 <div className="tl-item">
                   <div className="tl-dot"></div>
-                  <div className="tl-year">October 2021</div>
-                  <div className="tl-title">Blood Circle is Founded</div>
+                  <div className="tl-year">Early 2026</div>
+                  <div className="tl-title">The Idea Takes Shape</div>
                   <div className="tl-desc">
-                    Rajan Iyer launches the platform with 200 verified donors in Mumbai after
-                    his personal experience with a blood shortage crisis.
+                    Rakibul Hasan Rakib and Atiqur Rahman Jibon begin building Blood Circle after
+                    witnessing the catastrophic gaps in the blood donor network firsthand.
                   </div>
                 </div>
                 <div className="tl-item">
                   <div className="tl-dot"></div>
-                  <div className="tl-year">March 2022</div>
-                  <div className="tl-title">First 1,000 Lives Saved</div>
+                  <div className="tl-year">August 2026</div>
+                  <div className="tl-title">Blood Circle Officially Launches</div>
                   <div className="tl-desc">
-                    Within five months of launch, the platform facilitates its 1,000th
-                    successful blood donation — expanding to 40 cities.
+                    The platform goes live with an initial network of verified donors, a
+                    real-time matching system, and a mission to leave no patient without blood.
                   </div>
                 </div>
                 <div className="tl-item">
                   <div className="tl-dot"></div>
-                  <div className="tl-year">November 2022</div>
-                  <div className="tl-title">Hospital Partnerships Begin</div>
+                  <div className="tl-year">Late 2026</div>
+                  <div className="tl-title">First Hospital Partnerships</div>
                   <div className="tl-desc">
-                    Apollo Hospitals and Fortis Healthcare integrate Blood Circle into their
-                    emergency request workflows, marking our first institutional partnerships.
+                    Leading hospitals begin integrating Blood Circle into their emergency request
+                    workflows, marking our first institutional partnerships.
                   </div>
                 </div>
                 <div className="tl-item">
                   <div className="tl-dot"></div>
-                  <div className="tl-year">June 2023</div>
+                  <div className="tl-year">2027</div>
                   <div className="tl-title">National Expansion</div>
                   <div className="tl-desc">
-                    Blood Circle reaches 100 cities and partners with the Indian Red Cross Society
-                    to co-organize monthly donor drives across 12 states.
+                    Blood Circle expands to 100+ cities, establishing partnerships with NGOs and
+                    healthcare institutions to co-organize monthly donor drives nationwide.
                   </div>
                 </div>
                 <div className="tl-item">
                   <div className="tl-dot"></div>
-                  <div className="tl-year">Today · 2025</div>
+                  <div className="tl-year">Today · 2026</div>
                   <div className="tl-title">48,000+ Donors &amp; Growing</div>
                   <div className="tl-desc">
                     The network spans 190+ cities with over 48,000 verified donors, a sub-12-minute
@@ -367,7 +369,7 @@ export default function AboutPage() {
                   </>
                 ),
                 title: 'Zero Barriers',
-                desc: 'Finding blood — or giving it — should never be blocked by cost, complexity, or geography. Our platform is free, simple, and built for every corner of India.',
+                desc: 'Finding blood — or giving it — should never be blocked by cost, complexity, or geography. Our platform is free, simple, and built for everyone.',
               },
               {
                 icon: (
@@ -409,30 +411,30 @@ export default function AboutPage() {
             </div>
             <p className="section-desc">
               A small, deeply committed team united by a single belief: blood donation should be
-              as easy as ordering food.
+              as easy as making a phone call.
             </p>
           </div>
           <div className="team-grid reveal">
             {[
               {
                 initial: 'R', bg: 'team-bg-1',
-                name: 'Rajan Iyer', role: 'Founder & CEO',
-                bio: 'Former healthcare logistics engineer. Built Blood Circle after his daughter\'s emergency. Speaks to donors personally every week.',
+                name: 'Rakibul Hasan Rakib', role: 'Founder & CEO',
+                bio: 'Visionary behind Blood Circle. Built the platform after witnessing a family\'s desperate search for blood. Speaks to donors personally every week.',
               },
               {
-                initial: 'N', bg: 'team-bg-2',
-                name: 'Nandita Krishnan', role: 'Co-Founder & COO',
-                bio: 'Ex-Apollo operations head. Designed our verification protocol and hospital partnership framework from scratch.',
+                initial: 'A', bg: 'team-bg-2',
+                name: 'Atiqur Rahman Jibon', role: 'Co-Founder & COO',
+                bio: 'Operational backbone of Blood Circle. Designed the verification protocol and hospital partnership framework from the ground up.',
               },
               {
                 initial: 'A', bg: 'team-bg-3',
                 name: 'Aryan Mehta', role: 'Head of Technology',
-                bio: 'IIT Bombay grad. Built the real-time matching algorithm that gets donors to recipients in under 12 minutes.',
+                bio: 'Built the real-time matching algorithm that connects donors to recipients in under 12 minutes, around the clock.',
               },
               {
                 initial: 'P', bg: 'team-bg-4',
                 name: 'Priya Nair', role: 'Head of Community',
-                bio: 'Social worker turned tech builder. Manages our 48,000+ donor community with the care of a nurse and the skill of a community manager.',
+                bio: 'Manages our 48,000+ donor community with the care of a nurse and the skill of a seasoned community builder.',
               },
             ].map((member, i) => (
               <div key={i} className="team-card">
@@ -491,7 +493,7 @@ export default function AboutPage() {
                 ),
                 ref: cnt1, target: 48200,
                 suffix: '+', label: 'Verified Donors',
-                sub: 'Across 190+ cities in India',
+                sub: 'Across 190+ cities',
               },
               {
                 icon: (
@@ -553,7 +555,7 @@ export default function AboutPage() {
         <div className="partners-inner">
           <div className="section-header reveal">
             <span className="tag">Our Partners</span>
-            <h2 className="section-title">Trusted by<em> India's</em><br/>Leading Institutions</h2>
+            <h2 className="section-title">Trusted by<em> Leading</em><br/>Institutions</h2>
             <p className="section-desc">
               We work alongside hospitals, NGOs, and government bodies to keep the network strong.
             </p>
@@ -563,7 +565,7 @@ export default function AboutPage() {
               { name: 'AIIMS New Delhi', type: 'Government Hospital' },
               { name: 'Apollo Hospitals', type: 'Private Healthcare' },
               { name: 'Fortis Healthcare', type: 'Hospital Chain' },
-              { name: 'Red Cross India', type: 'NGO Partner' },
+              { name: 'Red Cross', type: 'NGO Partner' },
               { name: 'Max Healthcare', type: 'Hospital Network' },
             ].map((p, i) => (
               <div key={i} className="partner-card">
