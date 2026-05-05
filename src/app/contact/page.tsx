@@ -190,7 +190,7 @@ export default function ContactPage() {
                     </label>
                     <input
                       className={`cf-input ${errors.name ? 'error' : ''}`}
-                      type="text" id="name" placeholder="Aryan Mehta"
+                      type="text" id="name" placeholder="Full Name"
                       value={form.name} onChange={handleChange}
                     />
                     <span className={`cf-error ${errors.name ? 'show' : ''}`}>Please enter your name.</span>
@@ -201,7 +201,7 @@ export default function ContactPage() {
                     </label>
                     <input
                       className={`cf-input ${errors.email ? 'error' : ''}`}
-                      type="email" id="email" placeholder="aryan@example.com"
+                      type="email" id="email" placeholder="example@mail.com"
                       value={form.email} onChange={handleChange}
                     />
                     <span className={`cf-error ${errors.email ? 'show' : ''}`}>Please enter a valid email.</span>
@@ -214,7 +214,7 @@ export default function ContactPage() {
                     <label className="cf-label" htmlFor="phone">Phone Number</label>
                     <input
                       className="cf-input"
-                      type="tel" id="phone" placeholder="+91 98765 43210"
+                      type="tel" id="phone" placeholder="+880 18765 43210"
                       value={form.phone} onChange={handleChange}
                     />
                   </div>
@@ -348,7 +348,7 @@ export default function ContactPage() {
               <div className="csc-head-title">Emergency Hotline</div>
             </div>
             <div className="csc-body">
-              <div className="emerg-hotline">1800 000 0000</div>
+              <div className="emerg-hotline">1622</div>
               <div className="emerg-sub">
                 Toll-free · Available 24 hours a day, 7 days a week.<br/>
                 For urgent blood requests only.
