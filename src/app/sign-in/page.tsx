@@ -247,7 +247,7 @@ export default function SignInPage() {
           <div className="sl-testi-author">
             <div className="sl-testi-avatar">A</div>
             <div>
-              <div className="sl-testi-name">Aryan Mehta</div>
+              <div className="sl-testi-name">Rakibul Hasan</div>
               <div className="sl-testi-role">Verified Donor · Mumbai, Maharashtra</div>
             </div>
           </div>

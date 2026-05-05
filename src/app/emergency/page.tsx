@@ -26,57 +26,60 @@ interface EmergencyRequest {
 // ── Seed Data ──────────────────────────────────────────────────────────────
 const SEED_REQUESTS: EmergencyRequest[] = [
   {
-    id: 1, blood: 'O−', patientName: 'Rakesh Sharma (58)',
-    hospital: 'AIIMS New Delhi', city: 'New Delhi', state: 'Delhi',
+    id: 1, blood: 'O−', patientName: 'Rafiqul Islam (60)',
+    hospital: 'Dhaka Medical College Hospital', city: 'Dhaka', state: 'Dhaka Division',
     units: 3, urgency: 'critical',
     description: 'Post-surgery complication. Patient in ICU. O− universal donor blood required immediately. Please contact as soon as possible.',
-    postedBy: 'Priya Sharma', phone: '+91 98765 43210',
+    postedBy: 'Nasrin Islam', phone: '+880 1711 234567',
     timeAgo: '4 mins ago', respondedCount: 2, isNew: true,
   },
   {
-    id: 2, blood: 'AB−', patientName: 'Sunita Devi (34)',
-    hospital: 'Fortis Hospital, BKC', city: 'Mumbai', state: 'Maharashtra',
+    id: 2, blood: 'AB−', patientName: 'Fatema Begum (35)',
+    hospital: 'Square Hospital, Panthapath', city: 'Dhaka', state: 'Dhaka Division',
     units: 2, urgency: 'critical',
     description: 'Emergency C-section. AB− blood needed urgently. Very rare type. Please respond immediately if you or someone you know can donate.',
-    postedBy: 'Amit Devi', phone: '+91 91234 56789',
+    postedBy: 'Karim Hossain', phone: '+880 1821 345678',
     timeAgo: '12 mins ago', respondedCount: 0, isNew: true,
   },
   {
-    id: 3, blood: 'B+', patientName: 'Mohan Reddy (45)',
-    hospital: 'Apollo Hospitals', city: 'Hyderabad', state: 'Telangana',
+    id: 3, blood: 'B+', patientName: 'Abul Kalam (47)',
+    hospital: 'Chittagong Medical College Hospital', city: 'Chittagong', state: 'Chattogram Division',
     units: 4, urgency: 'urgent',
     description: 'Bypass surgery scheduled tomorrow morning. Need 4 units of B+ blood. Hospital blood bank running low. Patient in stable condition.',
-    postedBy: 'Kavitha Reddy', phone: '+91 88765 43210',
+    postedBy: 'Roksana Akter', phone: '+880 1912 456789',
     timeAgo: '38 mins ago', respondedCount: 3,
   },
   {
-    id: 4, blood: 'A+', patientName: 'Ananya Singh (12)',
-    hospital: 'Narayana Health City', city: 'Bangalore', state: 'Karnataka',
+    id: 4, blood: 'A+', patientName: 'Mitu Khatun (13)',
+    hospital: 'Sylhet MAG Osmani Medical College Hospital', city: 'Sylhet', state: 'Sylhet Division',
     units: 2, urgency: 'urgent',
     description: 'Child with thalassemia requires periodic transfusions. Next transfusion due in 2 days. Parents looking for regular donors for long-term support.',
-    postedBy: 'Ramesh Singh', phone: '+91 77654 32109',
+    postedBy: 'Jalal Uddin', phone: '+880 1615 567890',
     timeAgo: '1 hr ago', respondedCount: 5,
   },
   {
-    id: 5, blood: 'O+', patientName: 'Geetha Nair (67)',
-    hospital: 'Medical Trust Hospital', city: 'Kochi', state: 'Kerala',
+    id: 5, blood: 'O+', patientName: 'Amena Khanam (68)',
+    hospital: 'Rajshahi Medical College Hospital', city: 'Rajshahi', state: 'Rajshahi Division',
     units: 2, urgency: 'moderate',
     description: 'Hip replacement surgery next week. Looking for O+ donors in advance to ensure adequate supply is ready before the procedure.',
-    postedBy: 'Suresh Nair', phone: '+91 98123 45678',
+    postedBy: 'Shafiqul Haque', phone: '+880 1755 678901',
     timeAgo: '2 hrs ago', respondedCount: 4,
   },
   {
-    id: 6, blood: 'B−', patientName: 'Farhan Ansari (29)',
-    hospital: 'KEM Hospital', city: 'Mumbai', state: 'Maharashtra',
+    id: 6, blood: 'B−', patientName: 'Mizanur Rahman (31)',
+    hospital: 'Khulna Medical College Hospital', city: 'Khulna', state: 'Khulna Division',
     units: 1, urgency: 'urgent',
-    description: 'Road accident victim. Stabilised but needs blood transfusion. B− is a rare type — please reach out if you are a B− donor in the Mumbai area.',
-    postedBy: 'Zara Ansari', phone: '+91 96543 21098',
+    description: 'Road accident victim. Stabilised but needs blood transfusion. B− is a rare type — please reach out if you are a B− donor in the Khulna area.',
+    postedBy: 'Sharmin Akter', phone: '+880 1833 789012',
     timeAgo: '2 hrs ago', respondedCount: 1,
   },
 ]
 
 const BLOOD_TYPES = ['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−']
-const STATES = ['Maharashtra', 'Karnataka', 'Tamil Nadu', 'Kerala', 'Delhi', 'Telangana', 'West Bengal', 'Gujarat', 'Rajasthan', 'Uttar Pradesh', 'Andhra Pradesh', 'Punjab', 'Madhya Pradesh', 'Bihar', 'Rajasthan']
+const DISTRICTS = [
+  'Dhaka Division', 'Chattogram Division', 'Sylhet Division', 'Rajshahi Division',
+  'Khulna Division', 'Barishal Division', 'Mymensingh Division', 'Rangpur Division',
+]
 
 const URGENCY_MAP: Record<Urgency, string> = {
   critical: 'Critical',
@@ -143,7 +146,7 @@ function ResponseModal({
             </div>
             <div className="resp-field">
               <label className="resp-label">Phone Number <span className="req">*</span></label>
-              <input className="resp-input" type="tel" placeholder="+91 00000 00000" />
+              <input className="resp-input" type="tel" placeholder="+880 1XXX XXXXXX" />
             </div>
             <div className="resp-field">
               <label className="resp-label">Your Blood Type <span className="req">*</span></label>
@@ -664,7 +667,7 @@ export default function EmergencyPage() {
                 <div className="pfc-field">
                   <label className="pfc-label" htmlFor="pPatient">Patient Name & Age <span className="req">*</span></label>
                   <input className={`pfc-input ${formErrors.patient ? 'error' : ''}`}
-                    id="pPatient" type="text" placeholder="e.g. Ramesh Kumar (45)"
+                    id="pPatient" type="text" placeholder="e.g. Karim Hossain (45)"
                     value={pPatient} onChange={e => { setPPatient(e.target.value); setFormErrors(p => ({ ...p, patient: false })) }}/>
                   <div className={`pfc-field-error ${formErrors.patient ? 'show' : ''}`}>Enter patient name.</div>
                 </div>
@@ -688,14 +691,14 @@ export default function EmergencyPage() {
                     <div className={`pfc-field-error ${formErrors.city ? 'show' : ''}`}>Enter city.</div>
                   </div>
                   <div className="pfc-field" style={{ marginBottom: 0 }}>
-                    <label className="pfc-label" htmlFor="pState">State <span className="req">*</span></label>
+                    <label className="pfc-label" htmlFor="pState">Division <span className="req">*</span></label>
                     <select className={`pfc-select ${formErrors.state ? 'error' : ''}`}
                       id="pState" value={pState}
                       onChange={e => { setPState(e.target.value); setFormErrors(p => ({ ...p, state: false })) }}>
-                      <option value="">State</option>
-                      {STATES.map(s => <option key={s}>{s}</option>)}
+                      <option value="">Division</option>
+                      {DISTRICTS.map(s => <option key={s}>{s}</option>)}
                     </select>
-                    <div className={`pfc-field-error ${formErrors.state ? 'show' : ''}`}>Select state.</div>
+                    <div className={`pfc-field-error ${formErrors.state ? 'show' : ''}`}>Select division.</div>
                   </div>
                 </div>
 
@@ -710,7 +713,7 @@ export default function EmergencyPage() {
                   <div className="pfc-field" style={{ marginBottom: 0 }}>
                     <label className="pfc-label" htmlFor="pPhone">Contact Phone <span className="req">*</span></label>
                     <input className={`pfc-input ${formErrors.phone ? 'error' : ''}`}
-                      id="pPhone" type="tel" placeholder="+91 XXXXX XXXXX"
+                      id="pPhone" type="tel" placeholder="+880 1XXX XXXXXX"
                       value={pPhone} onChange={e => { setPPhone(e.target.value); setFormErrors(p => ({ ...p, phone: false })) }}/>
                     <div className={`pfc-field-error ${formErrors.phone ? 'show' : ''}`}>Enter phone.</div>
                   </div>

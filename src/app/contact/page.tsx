@@ -551,7 +551,7 @@ export default function ContactPage() {
       {/* ── CTA Strip ── */}
       <div className="contact-cta-strip">
         <h3>Still Need Help? <em>We&rsquo;re a Click Away.</em></h3>
-        <p>Our support team has helped thousands of patients and donors across India. Whatever your question, we&rsquo;re ready.</p>
+        <p>Our support team has helped thousands of patients and donors across Bangladesh. Whatever your question, we&rsquo;re ready.</p>
         <div className="cta-strip-actions">
           <a href="/become-donor" className="cta-strip-primary">
             <span>Register as Donor</span>

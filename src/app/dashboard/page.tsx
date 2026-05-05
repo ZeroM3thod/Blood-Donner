@@ -94,7 +94,7 @@ const leaderboard = [
   { rank: 1, name: 'Priya Menon',   city: 'Bengaluru', count: 38, init: 'P' },
   { rank: 2, name: 'Rohit Sharma',  city: 'Mumbai',    count: 31, init: 'R' },
   { rank: 3, name: 'Kavita Iyer',   city: 'Chennai',   count: 27, init: 'K' },
-  { rank: 4, name: 'Aryan Mehta',   city: 'Mumbai',    count: 14, init: 'A', isMe: true },
+  { rank: 4, name: 'Rakibul Hasan',   city: 'Mumbai',    count: 14, init: 'A', isMe: true },
   { rank: 5, name: 'Sneha Gupta',   city: 'Delhi',     count: 12, init: 'S' },
 ]
 
@@ -170,7 +170,7 @@ export default function Dashboard() {
           <div className="dpc-verified">✓</div>
         </div>
         <div className="dpc-info">
-          <div className="dpc-name">Aryan Mehta</div>
+          <div className="dpc-name">Rakibul Hasan</div>
           <div className="dpc-id">ID · BC-2025-84237</div>
           <div className="dpc-tags">
             <span className="dpc-tag blood">A+</span>

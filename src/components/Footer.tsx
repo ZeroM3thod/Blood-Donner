@@ -7,7 +7,7 @@ export default function Footer() {
             <div className="footer-logo-name">Blood<span>Circle</span></div>
             <div className="footer-logo-tagline">Life · Humanity · Hope</div>
             <p className="footer-brand-desc">
-              A trusted platform connecting blood donors with recipients across India.
+              A trusted platform connecting blood donors with recipients across Bangladesh.
               Every profile is verified. Every drop is precious.
             </p>
           </div>

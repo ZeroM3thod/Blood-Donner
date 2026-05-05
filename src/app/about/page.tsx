@@ -428,12 +428,12 @@ export default function AboutPage() {
               },
               {
                 initial: 'A', bg: 'team-bg-3',
-                name: 'Aryan Mehta', role: 'Head of Technology',
+                name: 'Rakibul Hasan Rakib', role: 'Head of Technology',
                 bio: 'Built the real-time matching algorithm that connects donors to recipients in under 12 minutes, around the clock.',
               },
               {
                 initial: 'P', bg: 'team-bg-4',
-                name: 'Priya Nair', role: 'Head of Community',
+                name: 'Mousumi Akter', role: 'Head of Community',
                 bio: 'Manages our 48,000+ donor community with the care of a nurse and the skill of a seasoned community builder.',
               },
             ].map((member, i) => (

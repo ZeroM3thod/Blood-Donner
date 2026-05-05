@@ -1,80 +1,78 @@
 'use client'
-
 import { useState, useRef, useEffect } from 'react'
 import './search-donors.css'
-
 // ─── Donor data ───────────────────────────────────────────────────────────────
 const DONORS = [
   {
-    id: 1, name: 'Rajesh Kumar', initials: 'R', avatar: 'av-crimson',
-    location: 'Andheri West, Mumbai', blood: 'O+', avail: 'now',
-    state: 'Maharashtra', verified: true, gender: 'Male', exp: 'seasoned',
+    id: 1, name: 'Rafiqul Islam', initials: 'R', avatar: 'av-crimson',
+    location: 'Mirpur, Dhaka', blood: 'O+', avail: 'now',
+    state: 'Dhaka', verified: true, gender: 'Male', exp: 'seasoned',
     donations: '14 times', lastDonated: '4 months ago', age: '34', urgent: true,
   },
   {
-    id: 2, name: 'Priya Sharma', initials: 'P', avatar: 'av-teal',
-    location: 'Indiranagar, Bangalore', blood: 'A+', avail: 'now',
-    state: 'Karnataka', verified: true, gender: 'Female', exp: 'moderate',
+    id: 2, name: 'Farida Begum', initials: 'F', avatar: 'av-teal',
+    location: 'Agrabad, Chattogram', blood: 'A+', avail: 'now',
+    state: 'Chattogram', verified: true, gender: 'Female', exp: 'moderate',
     donations: '6 times', lastDonated: '5 months ago', age: '28',
   },
   {
-    id: 3, name: 'Arjun Nair', initials: 'A', avatar: 'av-ink',
-    location: 'T. Nagar, Chennai', blood: 'B−', avail: 'soon',
-    state: 'Tamil Nadu', verified: true, gender: 'Male', exp: 'seasoned',
+    id: 3, name: 'Aminul Haque', initials: 'A', avatar: 'av-ink',
+    location: 'Shaheb Bazar, Rajshahi', blood: 'B−', avail: 'soon',
+    state: 'Rajshahi', verified: true, gender: 'Male', exp: 'seasoned',
     donations: '11 times', lastDonated: '3 months ago', age: '31',
   },
   {
-    id: 4, name: 'Sneha Menon', initials: 'S', avatar: 'av-gold',
-    location: 'Kakkanad, Kochi', blood: 'AB+', avail: 'now',
-    state: 'Kerala', verified: true, gender: 'Female', exp: 'first',
+    id: 4, name: 'Sumaiya Akter', initials: 'S', avatar: 'av-gold',
+    location: 'Jessore Road, Khulna', blood: 'AB+', avail: 'now',
+    state: 'Khulna', verified: true, gender: 'Female', exp: 'first',
     donations: '1st time', lastDonated: 'Never', age: '25',
   },
   {
-    id: 5, name: 'Vikram Singh', initials: 'V', avatar: 'av-navy',
-    location: 'Vasant Kunj, Delhi', blood: 'O−', avail: 'now',
-    state: 'Delhi', verified: true, gender: 'Male', exp: 'seasoned',
+    id: 5, name: 'Moniruzzaman Khan', initials: 'M', avatar: 'av-navy',
+    location: 'Zindabazar, Sylhet', blood: 'O−', avail: 'now',
+    state: 'Sylhet', verified: true, gender: 'Male', exp: 'seasoned',
     donations: '22 times', lastDonated: '6 months ago', age: '40',
   },
   {
-    id: 6, name: 'Deepika Rao', initials: 'D', avatar: 'av-crimson',
-    location: 'Banjara Hills, Hyderabad', blood: 'B+', avail: 'soon',
-    state: 'Telangana', verified: true, gender: 'Female', exp: 'moderate',
+    id: 6, name: 'Nasrin Sultana', initials: 'N', avatar: 'av-crimson',
+    location: 'Notun Bazar, Barishal', blood: 'B+', avail: 'soon',
+    state: 'Barishal', verified: true, gender: 'Female', exp: 'moderate',
     donations: '4 times', lastDonated: '7 months ago', age: '30',
   },
   {
-    id: 7, name: 'Saurav Ghosh', initials: 'S', avatar: 'av-teal',
-    location: 'Salt Lake, Kolkata', blood: 'A−', avail: 'now',
-    state: 'West Bengal', verified: true, gender: 'Male', exp: 'seasoned',
+    id: 7, name: 'Shahadat Hossain', initials: 'S', avatar: 'av-teal',
+    location: 'Thanapara, Rajshahi', blood: 'A−', avail: 'now',
+    state: 'Rajshahi', verified: true, gender: 'Male', exp: 'seasoned',
     donations: '8 times', lastDonated: '4 months ago', age: '36',
   },
   {
-    id: 8, name: 'Hardik Patel', initials: 'H', avatar: 'av-navy',
-    location: 'Navrangpura, Ahmedabad', blood: 'AB−', avail: 'soon',
-    state: 'Gujarat', verified: true, gender: 'Male', exp: 'moderate',
+    id: 8, name: 'Habibur Rahman', initials: 'H', avatar: 'av-navy',
+    location: 'Chandina, Cumilla', blood: 'AB−', avail: 'soon',
+    state: 'Chattogram', verified: true, gender: 'Male', exp: 'moderate',
     donations: '3 times', lastDonated: '8 months ago', age: '29',
   },
   {
-    id: 9, name: 'Meena Choudhary', initials: 'M', avatar: 'av-gold',
-    location: 'Malviya Nagar, Jaipur', blood: 'O+', avail: 'now',
-    state: 'Rajasthan', verified: true, gender: 'Female', exp: 'moderate',
+    id: 9, name: 'Roksana Parvin', initials: 'R', avatar: 'av-gold',
+    location: 'Mymensingh Sadar, Mymensingh', blood: 'O+', avail: 'now',
+    state: 'Mymensingh', verified: true, gender: 'Female', exp: 'moderate',
     donations: '5 times', lastDonated: '4 months ago', age: '27',
   },
   {
-    id: 10, name: 'Nikhil Gupta', initials: 'N', avatar: 'av-ink',
-    location: 'Gomti Nagar, Lucknow', blood: 'A+', avail: 'now',
-    state: 'Uttar Pradesh', verified: true, gender: 'Male', exp: 'seasoned',
+    id: 10, name: 'Tanvir Ahmed', initials: 'T', avatar: 'av-ink',
+    location: 'Uttara, Dhaka', blood: 'A+', avail: 'now',
+    state: 'Dhaka', verified: true, gender: 'Male', exp: 'seasoned',
     donations: '9 times', lastDonated: '5 months ago', age: '33',
   },
   {
-    id: 11, name: 'Aisha Khan', initials: 'A', avatar: 'av-crimson',
-    location: 'Bandra East, Mumbai', blood: 'B+', avail: 'now',
-    state: 'Maharashtra', verified: true, gender: 'Female', exp: 'first',
+    id: 11, name: 'Shirin Akter', initials: 'S', avatar: 'av-crimson',
+    location: 'Mouchak, Dhaka', blood: 'B+', avail: 'now',
+    state: 'Dhaka', verified: true, gender: 'Female', exp: 'first',
     donations: '2 times', lastDonated: '1 year ago', age: '24',
   },
   {
-    id: 12, name: 'Karthik Iyer', initials: 'K', avatar: 'av-navy',
-    location: 'Koramangala, Bangalore', blood: 'O−', avail: 'soon',
-    state: 'Karnataka', verified: true, gender: 'Male', exp: 'seasoned',
+    id: 12, name: 'Zahirul Islam', initials: 'Z', avatar: 'av-navy',
+    location: 'Nasirabad, Chattogram', blood: 'O−', avail: 'soon',
+    state: 'Chattogram', verified: true, gender: 'Male', exp: 'seasoned',
     donations: '16 times', lastDonated: '3 months ago', age: '38',
   },
 ]
@@ -139,7 +137,7 @@ function ContactModal({
             </div>
             <div className="modal-field-group">
               <label className="modal-field-label">Your Phone <span className="req">*</span></label>
-              <input className="modal-input" type="tel" placeholder="+91 00000 00000" />
+              <input className="modal-input" type="tel" placeholder="+880 01XXX-XXXXXX" />
             </div>
             <div className="modal-field-group">
               <label className="modal-field-label">Urgency Level <span className="req">*</span></label>
@@ -305,7 +303,7 @@ export default function SearchDonors() {
     const obs = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         animate(cnt1Ref.current, 12400)
-        animate(cnt2Ref.current, 280)
+        animate(cnt2Ref.current, 60)
         animate(cnt3Ref.current, 98)
         obs.disconnect()
       }
@@ -338,9 +336,33 @@ export default function SearchDonors() {
     setQsCity(''); setQsBlood(''); setQsState('')
   }
 
-  const BLOOD_TYPES = ['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−']
-  const STATES = ['Maharashtra', 'Karnataka', 'Tamil Nadu', 'Kerala', 'Delhi', 'Telangana', 'West Bengal', 'Gujarat', 'Rajasthan', 'Uttar Pradesh']
+ const BLOOD_TYPES = ['A+', 'A−', 'B+', 'B−', 'AB+', 'AB−', 'O+', 'O−']
 
+const DISTRICTS = [
+  // Dhaka Division
+  'Dhaka', 'Gazipur', 'Kishoreganj', 'Manikganj', 'Munshiganj', 'Narayanganj', 'Narsingdi', 'Tangail', 'Faridpur', 'Gopalganj', 'Madaripur', 'Rajbari', 'Shariatpur',
+  
+  // Chattogram Division
+  'Chattogram', 'Cox’s Bazar', 'Rangamati', 'Bandarban', 'Khagrachhari', 'Feni', 'Lakshmipur', 'Noakhali', 'Cumilla', 'Brahmanbaria', 'Chandpur',
+  
+  // Rajshahi Division
+  'Rajshahi', 'Sirajganj', 'Pabna', 'Bogura', 'Chapai Nawabganj', 'Naogaon', 'Natore', 'Joypurhat',
+  
+  // Khulna Division
+  'Khulna', 'Bagherhat', 'Sathkhira', 'Jashore', 'Magura', 'Narail', 'Kushtia', 'Chuadanga', 'Meherpur', 'Jhenaidah',
+  
+  // Barishal Division
+  'Barishal', 'Barguna', 'Bhola', 'Jhalokathi', 'Patuakhali', 'Pirojpur',
+  
+  // Sylhet Division
+  'Sylhet', 'Habiganj', 'Moulvibazar', 'Sunamganj',
+  
+  // Rangpur Division
+  'Rangpur', 'Dinajpur', 'Gaibandha', 'Kurigram', 'Lalmonirhat', 'Nilphamari', 'Panchagarh', 'Thakurgaon',
+  
+  // Mymensingh Division
+  'Mymensingh', 'Jamalpur', 'Netrokona', 'Sherpur'
+]
   return (
     <>
       {/* ── Hero ── */}
@@ -434,7 +456,7 @@ export default function SearchDonors() {
             </svg>
             <select className="qs-select" value={qsState} onChange={e => setQsState(e.target.value)}>
               <option value="">Any State</option>
-              {STATES.map(s => <option key={s}>{s}</option>)}
+              {DISTRICTS.map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
           <button className="qs-btn">
@@ -522,10 +544,10 @@ export default function SearchDonors() {
 
             {/* State */}
             <div className="filter-section">
-              <div className="filter-section-title">State</div>
+              <div className="filter-section-title">City</div>
               <select className="filter-select" value={stateFilter} onChange={e => setStateFilter(e.target.value)}>
-                <option value="">All States</option>
-                {STATES.map(s => <option key={s}>{s}</option>)}
+                <option value="">All City</option>
+                {DISTRICTS.map(s => <option key={s}>{s}</option>)}
               </select>
             </div>
 

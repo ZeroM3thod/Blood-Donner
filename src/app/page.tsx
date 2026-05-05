@@ -95,8 +95,8 @@ export default function Home() {
             <div className="hero-visual">
               <div className="hero-card-main">
                 <div className="hc-blood-type">A+</div>
-                <div className="hc-name">Aryan Mehta</div>
-                <div className="hc-location">📍 Mumbai, Maharashtra</div>
+                <div className="hc-name">Rakibul Hasan</div>
+                <div className="hc-location">📍 Konabari , Gazipur</div>
                 <div className="hc-divider"></div>
                 <div className="hc-row">
                   <span className="hc-row-label">Last Donated</span>
@@ -133,11 +133,11 @@ export default function Home() {
         <div className="trusted-inner">
           <span className="trusted-label">Trusted by</span>
           <div className="trusted-logos">
-            <span className="trust-item">AIIMS New Delhi</span>
-            <span className="trust-item">Fortis Healthcare</span>
-            <span className="trust-item">Apollo Hospitals</span>
-            <span className="trust-item">Red Cross India</span>
-            <span className="trust-item">Max Healthcare</span>
+            <span className="trust-item">Dhaka Medical College</span>
+            <span className="trust-item">BIRDEM General Hospital</span>
+            <span className="trust-item">United Hospital Limited</span>
+            <span className="trust-item">Green Life Medical College</span>
+            
           </div>
         </div>
       </div>
@@ -257,8 +257,8 @@ export default function Home() {
                 <div className="testi-author">
                   <div className="testi-avatar">P</div>
                   <div>
-                    <div className="testi-name">Priya Nair</div>
-                    <div className="testi-role">Daughter of patient · Kochi, Kerala</div>
+                    <div className="testi-name">Mousumi Akter</div>
+                    <div className="testi-role">Daughter of patient · Dhaka, Bangladesh</div>
                   </div>
                 </div>
               </div>
