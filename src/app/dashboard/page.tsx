@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import DashboardSidebar, { SIDEBAR_W } from '@/components/DashboardSidebar'
 
 /* ══════════════════════════════════════════
@@ -110,7 +110,7 @@ function useCounter(target: number, duration = 1200, start = false) {
 
 function AnimatedStat({ target, color, sub, label, Icon, delay, ready }: {
   target: number; color: string; sub: string; label: string;
-  Icon: ({ s }: { s?: number }) => JSX.Element; delay: number; ready: boolean
+  Icon: ({ s }: { s?: number }) => React.ReactElement; delay: number; ready: boolean
 }) {
   const val = useCounter(target, 1000, ready)
   return (
