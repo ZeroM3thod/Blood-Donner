@@ -11,41 +11,17 @@ const Ic = ({ d, size = 16, children }: { d?: string; size?: number; children?: 
 )
 
 /* ══════════════════════════════════════════
-   NAV GROUPS — import or extend per project
+   NAV GROUPS — 5 core items only
 ══════════════════════════════════════════ */
 export const navGroups = [
   {
-    section: 'Main',
+    section: 'Navigation',
     items: [
-      { id: 'dashboard',    label: 'Dashboard',        icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',           badge: null },
-      { id: 'leaderboard',  label: 'Leaderboard',      icon: 'M18 20V10M12 20V4M6 20v-6',                                   badge: null },
-    ],
-  },
-  {
-    section: 'Donations',
-    items: [
-      { id: 'find-drives',  label: 'Find Drives',      icon: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z',             badge: null },
-      { id: 'appointments', label: 'Book Appointment', icon: 'M8 2h8M12 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z', badge: '2', badgeType: 'gold' },
-      { id: 'requests',     label: 'Blood Requests',   icon: 'M22 12h-4l-3 9L9 3l-3 9H2',                                   badge: '5' },
-      { id: 'my-requests',  label: 'My Requests',      icon: 'M9 11l3 3L22 4',                                               badge: null },
-      { id: 'history',      label: 'Donation History', icon: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',          badge: null },
-    ],
-  },
-  {
-    section: 'Profile & Health',
-    items: [
-      { id: 'eligibility',  label: 'Eligibility Status', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',              badge: null },
-      { id: 'health',       label: 'Health & Reports',   icon: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z', badge: null },
-      { id: 'badges',       label: 'Impact & Rewards',   icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z', badge: null },
-      { id: 'favorites',    label: 'Saved Drives',       icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z', badge: null },
-      { id: 'profile',      label: 'Profile & Settings', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2',                badge: null },
-    ],
-  },
-  {
-    section: 'Community',
-    items: [
-      { id: 'referral',     label: 'Referral Program',  icon: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2',                 badge: null },
-      { id: 'support',      label: 'Support & FAQ',     icon: 'M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10z', badge: null },
+      { id: 'dashboard',    label: 'Dashboard',  icon: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',                                                                        badge: null },
+      { id: 'campaigns',    label: 'Campaigns',  icon: 'M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z',                                                                         badge: null },
+      { id: 'appointments', label: 'Book',       icon: 'M8 2h8M12 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',                         badge: '2', badgeType: 'gold' },
+      { id: 'requests',     label: 'Requests',   icon: 'M22 12h-4l-3 9L9 3l-3 9H2',                                                                                               badge: '5' },
+      { id: 'profile',      label: 'Profile',    icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2',                                                                               badge: null },
     ],
   },
 ]
@@ -54,15 +30,10 @@ export const navGroups = [
    PROPS
 ══════════════════════════════════════════ */
 export interface SidebarProps {
-  /** Currently active page id */
   active: string
-  /** Callback when a nav item is clicked */
   onNavigate: (id: string) => void
-  /** Whether the sidebar is open (mobile drawer) */
   isOpen: boolean
-  /** Close handler (mobile) */
   onClose: () => void
-  /** Donor data to display in the user card */
   donor?: {
     name: string
     initials: string
@@ -133,8 +104,8 @@ export default function Sidebar({
             {/* Quick donor stats */}
             <div style={{ display: 'flex', gap: 16, marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               {[
-                { num: '7', lbl: 'Donations' },
-                { num: '42', lbl: 'Days ago' },
+                { num: '7',  lbl: 'Donations' },
+                { num: '42', lbl: 'Days ago'  },
                 { num: '21', lbl: 'Lives saved' },
               ].map((s, i) => (
                 <div key={i} style={{ textAlign: 'center', flex: 1 }}>
