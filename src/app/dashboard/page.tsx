@@ -1002,6 +1002,7 @@ export default function Dashboard() {
      RENDER
   ══════════════════════════════════════ */
   return (
+    <>
     <div className="ds">
 
       {/* Reusable Sidebar */}
@@ -1112,20 +1113,22 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── BOTTOM NAV (mobile) ── */}
-      <nav className="ds-bottom-nav">
-        {bottomNav.map(item => (
-          <button
-            key={item.id}
-            className={`ds-bn-item ${active === item.id ? 'active' : ''}`}
-            onClick={() => go(item.id)}
-          >
-            {item.badge && <span className="ds-bn-badge">{item.badge}</span>}
-            <span className="ds-bn-icon"><Ic d={item.icon} size={20} /></span>
-            {item.label}
-          </button>
-        ))}
-      </nav>
     </div>
+
+    {/* ── BOTTOM NAV (mobile) — outside .ds so position:fixed is relative to viewport ── */}
+    <nav className="ds-bottom-nav">
+      {bottomNav.map(item => (
+        <button
+          key={item.id}
+          className={`ds-bn-item ${active === item.id ? 'active' : ''}`}
+          onClick={() => go(item.id)}
+        >
+          {item.badge && <span className="ds-bn-badge">{item.badge}</span>}
+          <span className="ds-bn-icon"><Ic d={item.icon} size={20} /></span>
+          {item.label}
+        </button>
+      ))}
+    </nav>
+    </>
   )
 }
