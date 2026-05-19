@@ -18,22 +18,30 @@ export default function BloodCircleLoader() {
       [2100, 100,'System ready.'],
     ];
 
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    // Poll against wall-clock time so iOS Safari's timer throttling
+    // (caused by heavy CSS animations hogging the GPU/main thread)
+    // cannot stall progress updates at 0%.
+    const startTime = Date.now();
+    let stepIdx = 0;
 
-    steps.forEach(([delay, val, lbl]) => {
-      timers.push(setTimeout(() => {
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      while (stepIdx < steps.length && elapsed >= steps[stepIdx][0]) {
+        const [, val, lbl] = steps[stepIdx];
         setPct(val);
         setLabel(lbl);
-      }, delay));
-    });
+        stepIdx++;
+      }
+    }, 80);
 
-    // Start exit after 2.4 s
-    const exitTimer = setTimeout(() => setExiting(true), 2400);
-    // Remove from DOM after fade
+    const exitTimer = setTimeout(() => setExiting(true),  2400);
     const doneTimer = setTimeout(() => setVisible(false), 3400);
 
-    timers.push(exitTimer, doneTimer);
-    return () => timers.forEach(clearTimeout);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(exitTimer);
+      clearTimeout(doneTimer);
+    };
   }, []);
 
   if (!visible) return null;
@@ -60,7 +68,7 @@ export default function BloodCircleLoader() {
           pointer-events: none;
         }
 
-        /* Subtle radial glow */
+        /* Subtle radial glow — GPU-promoted to avoid blocking JS timers */
         #bc-loader::after {
           content: '';
           position: absolute;
@@ -71,13 +79,14 @@ export default function BloodCircleLoader() {
             rgba(140,31,40,0.06) 0%,
             transparent 70%);
           top: 50%; left: 50%;
-          transform: translate(-50%,-50%);
+          transform: translate(-50%,-50%) translateZ(0);
+          will-change: transform, opacity;
           animation: bc-breathe 3s ease-in-out infinite;
           pointer-events: none;
         }
         @keyframes bc-breathe {
-          0%,100% { transform: translate(-50%,-50%) scale(1);    opacity: 0.7; }
-          50%      { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+          0%,100% { transform: translate(-50%,-50%) translateZ(0) scale(1);    opacity: 0.7; }
+          50%      { transform: translate(-50%,-50%) translateZ(0) scale(1.15); opacity: 1; }
         }
 
         /* Corner brackets */
@@ -120,16 +129,20 @@ export default function BloodCircleLoader() {
           stroke-dasharray: 489;
           stroke-dashoffset: 489;
           transform-origin: center;
-          transform: rotate(-90deg);
+          transform: rotate(-90deg) translateZ(0);
+          will-change: stroke-dashoffset;
           animation: bc-arc 2s 0.35s cubic-bezier(.4,0,.2,1) forwards;
         }
         @keyframes bc-arc { to { stroke-dashoffset: 0; } }
 
+        /* Spinning tick ring — GPU layer so it doesn't block JS */
         .bc-ticks {
           position: absolute; inset: 0;
+          transform: translateZ(0);
+          will-change: transform;
           animation: bc-spin 14s linear infinite;
         }
-        @keyframes bc-spin { to { transform: rotate(360deg); } }
+        @keyframes bc-spin { to { transform: translateZ(0) rotate(360deg); } }
 
         /* Badge */
         .bc-badge {
@@ -144,11 +157,13 @@ export default function BloodCircleLoader() {
             0 0 0 1px rgba(140,31,40,0.15),
             0 8px 32px rgba(140,31,40,0.22),
             0 20px 60px rgba(140,31,40,0.10);
+          transform: translateZ(0);
+          will-change: transform, opacity;
           animation: bc-badge-in 0.55s 0.18s ease both;
         }
         @keyframes bc-badge-in {
-          from { opacity:0; transform:scale(0.82); }
-          to   { opacity:1; transform:scale(1); }
+          from { opacity:0; transform:translateZ(0) scale(0.82); }
+          to   { opacity:1; transform:translateZ(0) scale(1); }
         }
 
         /* Inner ring on badge */
@@ -166,6 +181,8 @@ export default function BloodCircleLoader() {
           border-radius: 50%;
           position: absolute;
           z-index: 1;
+          transform: translateZ(0);
+          will-change: box-shadow;
           animation: bc-dot-pulse 2s ease-in-out infinite;
         }
         @keyframes bc-dot-pulse {
@@ -222,7 +239,7 @@ export default function BloodCircleLoader() {
           content: '';
           position: absolute;
           right: -4px; top: 50%;
-          transform: translateY(-50%);
+          transform: translateY(-50%) translateZ(0);
           width: 7px; height: 7px;
           border-radius: 50%;
           background: #A8323D;
@@ -265,6 +282,10 @@ export default function BloodCircleLoader() {
           .bc-badge::after { width:42px; height:42px; }
           .bc-brand { font-size:1.55rem; }
           .bc-corner { display:none; }
+
+          /* Reduce animation-heavy glow on older/small-screen devices
+             to free up the compositor for JS timer callbacks */
+          #bc-loader::after { display: none; }
         }
       `}</style>
 
