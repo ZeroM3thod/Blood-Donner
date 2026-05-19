@@ -18,30 +18,33 @@ export default function BloodCircleLoader() {
       [2100, 100,'System ready.'],
     ];
 
-    // Poll against wall-clock time so iOS Safari's timer throttling
-    // (caused by heavy CSS animations hogging the GPU/main thread)
-    // cannot stall progress updates at 0%.
-    const startTime = Date.now();
+    // requestAnimationFrame is tied to the display refresh cycle and is
+    // never throttled by iOS Safari the way setTimeout/setInterval are.
+    // We measure elapsed time via performance.now() so late frames still
+    // catch up correctly — no update is ever skipped.
+    const start = performance.now();
     let stepIdx = 0;
+    let rafId: number;
 
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
+    const tick = (now: number) => {
+      const elapsed = now - start;
+
+      // Drain all steps whose delay has passed in this frame
       while (stepIdx < steps.length && elapsed >= steps[stepIdx][0]) {
-        const [, val, lbl] = steps[stepIdx];
-        setPct(val);
-        setLabel(lbl);
+        setPct(steps[stepIdx][1]);
+        setLabel(steps[stepIdx][2]);
         stepIdx++;
       }
-    }, 80);
 
-    const exitTimer = setTimeout(() => setExiting(true),  2400);
-    const doneTimer = setTimeout(() => setVisible(false), 3400);
+      // Drive exit + unmount through the same rAF loop — no setTimeout needed
+      if (elapsed >= 2400) setExiting(true);
+      if (elapsed >= 3400) { setVisible(false); return; } // stop loop
 
-    return () => {
-      clearInterval(interval);
-      clearTimeout(exitTimer);
-      clearTimeout(doneTimer);
+      rafId = requestAnimationFrame(tick);
     };
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
   }, []);
 
   if (!visible) return null;
