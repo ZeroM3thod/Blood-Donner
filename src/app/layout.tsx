@@ -18,10 +18,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap"
           rel="stylesheet"
         />
+        {/*
+          This style tag runs BEFORE any paint.
+          It hides the body immediately so nothing flashes through
+          before the loader overlay covers the screen.
+          BloodCircleLoader removes this tag (by id) once GSAP is ready
+          and the overlay is visible.
+        */}
+        <style id="bc-block-style">{`body { visibility: hidden !important; }`}</style>
       </head>
       <body>
 
-        {/* Lightweight Blood Circle loader */}
+        {/* Loader — reveals body once overlay is in place */}
         <BloodCircleLoader />
 
         {/* Custom Cursor */}
